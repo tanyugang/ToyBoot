@@ -12,7 +12,6 @@
     File.c
     Log.c
     Motion.c
-    Tools.c
     Video.c
 [Packages]
     MdePkg/MdePkg.dec
