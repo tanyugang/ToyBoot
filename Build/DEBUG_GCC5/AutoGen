@@ -1,0 +1,7 @@
+/home/tank/CodingMaster/EDK/Conf/build_rule.txt
+/home/tank/CodingMaster/EDK/Conf/tools_def.txt
+/home/tank/CodingMaster/EDK/MdePkg/MdePkg.dec
+/home/tank/CodingMaster/EDK/ToyBoot/Build/DEBUG_GCC5/BuildOptions
+/home/tank/CodingMaster/EDK/ToyBoot/Build/DEBUG_GCC5/PcdTokenNumber
+/home/tank/CodingMaster/EDK/ToyBoot/Build/DEBUG_GCC5/X64/TOOLS_DEF.X64
+/home/tank/CodingMaster/EDK/ToyBoot/ToyBoot.dsc
