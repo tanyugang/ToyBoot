@@ -5,7 +5,7 @@
     DSC_SPECIFICATION = 0x00010005
     SUPPORTED_ARCHITECTURES = X64
     BUILD_TARGETS = DEBUG|RELEASE
-    OUTPUT_DIRECTORY = ToyBootPkg/Build
+    OUTPUT_DIRECTORY = ToyBoot/Build
 
 [LibraryClasses]
     UefiLib|MdePkg/Library/UefiLib/UefiLib.inf
@@ -22,4 +22,4 @@
     RegisterFilterLib|MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf
     DebugPrintErrorLevelLib|MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf
 [Components]
-    ToyBootPkg/ToyBoot.inf
+    ToyBoot/ToyBoot.inf
