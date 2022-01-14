@@ -1,7 +1,7 @@
 # File only used by Tank
 Toy.sh
-Tools.h
-Tools.c
+Build/*
+
 # Prerequisites
 *.d
 
