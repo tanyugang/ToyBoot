@@ -1,6 +1,6 @@
 #include "Elf.h"
 
-EFI_STATUS Relocate(
+EFI_STATUS GetElfEntry(
     IN EFI_HANDLE ImageHandle,
     IN CHAR16 *FileName,
     OUT EFI_PHYSICAL_ADDRESS *KernelEntry)
