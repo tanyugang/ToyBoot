@@ -2,7 +2,7 @@
 
 EFI_FILE_PROTOCOL *LogFile;
 
-EFI_STATUS LogError(EFI_STATUS Code)
+EFI_STATUS LogError(EFI_STATUS Code,CHAR8 *ErrorSource )
 {
     EFI_STATUS Status = EFI_SUCCESS;
     switch (Code)

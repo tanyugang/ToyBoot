@@ -8,5 +8,5 @@
 
 EFI_STATUS LogInitial(EFI_HANDLE ImageHandle);
 EFI_STATUS LogTip(CHAR8 *Message);
-EFI_STATUS LogError(EFI_STATUS Code);
+EFI_STATUS LogError(EFI_STATUS Code, CHAR8 *ErrorSource);
 EFI_STATUS LogClose();

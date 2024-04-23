@@ -12,7 +12,7 @@ EFI_STATUS GetElfEntry(
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        LogError(Status);
+        LogError(Status, "Cannot get Elf file handle.");
     }
     LogTip("Kernel file handle is getted.\n");
     #endif
@@ -23,7 +23,7 @@ EFI_STATUS GetElfEntry(
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        LogError(Status);
+        LogError(Status, "Cannot read Elf file.");
     }else
     {
         LogTip("Kernel is readed.\n");
@@ -50,7 +50,7 @@ EFI_STATUS CheckELF(
     if(Magic != 0x464c457F)
     {
         #ifdef LOG
-        LogError(NOT_ELF);
+        LogError(NOT_ELF, "It is not an Elf file.");
         #endif
         Status = NOT_ELF;
     }
@@ -64,7 +64,7 @@ EFI_STATUS CheckELF(
     else
     {
         #ifdef LOG
-        LogError(NOT_64_BIT);
+        LogError(NOT_64_BIT, "It is not a 64 bits Elf file.");
         #endif
         Status = NOT_64_BIT;
     }
@@ -142,7 +142,7 @@ EFI_STATUS LoadSegments(
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        LogError(Status);
+        LogError(Status, "Cannot LoadeSegment");
     }else
     {
         LogTip("SUCCESS:Segs are loaded.\n");

@@ -19,7 +19,7 @@ UefiMain(
     Status = LogInitial(ImageHandle);
     if(EFI_ERROR(Status))
     {
-        LogError(Status);
+        LogError(Status, "Cannot repare the Log file.");
     }else
     {
         LogTip("Log is good now.\n");
@@ -32,13 +32,11 @@ UefiMain(
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        LogError(Status);
-    }else
-    {
+        LogError(Status, "Cannot set VideoMode correctly.");
+    }else {
         LogTip("Video is good now.\n");
     }
-    #endif 
-    while(1);
+    #endif
     BootConfig.VideoConfig = VideoConfig;
     #ifndef DEBUG
     DrawStep(Step++);
@@ -48,7 +46,7 @@ UefiMain(
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        LogError(Status);
+        LogError(Status, "Cannot drawLogo");
     }else
     {
         LogTip("Logo is on the screen.\n");
@@ -64,7 +62,7 @@ UefiMain(
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        LogError(Status);
+        LogError(Status, "Cannot GetElfEntry");
     }else
     {
         LogTip("Kernel entry getted.\n");
@@ -122,10 +120,11 @@ UefiMain(
     BootConfig.MemoryMap = MemoryMap;
     LogClose();
     Status = gBS->ExitBootServices(ImageHandle, MemoryMap.MapKey);
+    #ifdef DEBUG
     if(EFI_ERROR(Status)){
         Print(L"Could not exit boot services : %r.\n",Status);
     }
-
+    #endif
    
     //Status = ByeBootServices(ImageHandle, &BootConfig.MemoryMap);
     //
