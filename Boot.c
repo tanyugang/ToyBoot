@@ -23,8 +23,8 @@ UefiMain(
     {
         LogTip("Log is good now.\n");
     }
-    #endif   
-
+    #endif
+    
     Status = VideoInit(ImageHandle, &VideoConfig);
     #ifdef LOG
     if(EFI_ERROR(Status))
@@ -92,7 +92,9 @@ UefiMain(
     BootConfig.MemoryMap.MapKey = 0;
     BootConfig.MemoryMap.DescriptorSize = 0;
     BootConfig.MemoryMap.DescriptorVersion = 0;
+    LogClose();
     Status = ByeBootServices(ImageHandle, &BootConfig.MemoryMap);
+    //
     UINT64 PassBack = KernelEntry(&BootConfig);
     Print(L"PassBack=%d.\n", PassBack);
     //Never return here

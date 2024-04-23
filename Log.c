@@ -95,7 +95,21 @@ EFI_STATUS LogInitial(EFI_HANDLE ImageHandle)
 
     Print(L"SUCCESS:File is opened.\n");
     #endif
+    
+ 
 
+    
+    Status = LogTip("Log file is good.\n");
+    #ifdef DEBUG
+    if(EFI_ERROR(Status))
+    {
+        Print(L"ERROR:Failed to write file");
+        return Status;
+    }
+
+    Print(L"SUCCESS:File is writed.\n");
+    #endif
+  
     return Status;
 }
 
@@ -112,11 +126,11 @@ EFI_STATUS LogTip(CHAR8 *Message)
         return Status;
     }
     #endif
-
+    LogFile->Flush(LogFile);
     return Status;
 }
 
-EFI_STATUS Close()
+EFI_STATUS LogClose()
 {
     EFI_STATUS Status = EFI_SUCCESS;
     Status = LogFile->Close(LogFile);
