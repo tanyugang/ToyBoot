@@ -1,3 +1,3 @@
-//#define DEBUG
+#define DEBUG
 #define LOG
 

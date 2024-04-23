@@ -8,7 +8,10 @@ UefiMain(
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;   
+    #ifndef DEBUG
     UINT8 Step = 1;
+    #endif
+    
     VIDEO_CONFIG VideoConfig;
 
     #ifdef LOG
@@ -32,9 +35,11 @@ UefiMain(
         LogTip("Video is good now.\n");
     }
     #endif 
-    DrawStep(Step++);
+
+    #ifndef DEBUG
     DrawStep(Step++);
     Status = DrawLogo(ImageHandle);
+    #endif
 
     #ifdef LOG
     if(EFI_ERROR(Status))
@@ -45,7 +50,9 @@ UefiMain(
         LogTip("Logo is on the screen.\n");
     }
     #endif
+    #ifndef DEBUG
     DrawStep(Step++);
+    #endif
     EFI_PHYSICAL_ADDRESS KernelEntryPoint;
     Status = Relocate(ImageHandle, L"\\Kernel.elf", &KernelEntryPoint);
     #ifdef LOG
@@ -57,7 +64,9 @@ UefiMain(
         LogTip("Kernel entry getted.\n");
     }
     #endif
+    #ifndef DEBUG
     DrawStep(Step++);
+    #endif
 
     EFI_FILE_PROTOCOL *Ascii;
     Status = GetFileHandle(ImageHandle, L"ASCII.BMP", &Ascii);
