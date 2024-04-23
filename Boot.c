@@ -79,7 +79,7 @@ UefiMain(
     // = {4096, NULL, 4096, 0, 0, 0};
     BootConfig.MemoryMap.BufferSize = 4096;
     BootConfig.MemoryMap.Buffer = NULL;
-    BootConfig.MemoryMap.MapSize = 4096;
+    BootConfig.MemoryMap.MapSize = 4096 * 4;
     BootConfig.MemoryMap.MapKey = 0;
     BootConfig.MemoryMap.DescriptorSize = 0;
     BootConfig.MemoryMap.DescriptorVersion = 0;
