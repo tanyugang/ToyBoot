@@ -2,7 +2,7 @@
 #include "Elf.h"
 
 #pragma pack(1)
-typedef struct
+typedef struct MEMORY_MAP
 {
     UINTN BufferSize;
     VOID *Buffer;
@@ -12,14 +12,14 @@ typedef struct
     UINT32 DescriptorVersion;
 } MEMORY_MAP;
 
-typedef struct
+typedef struct BOOT_CONFIG
 {
     VIDEO_CONFIG VideoConfig;
     MEMORY_MAP   MemoryMap;
     BMP_CONFIG AsciiBmp;
 } BOOT_CONFIG; // @Boot.h
 
-typedef struct
+typedef struct GDT_SELECTOR
 {
     UINT16 LimitLow;
     UINT16 BaseLow;
