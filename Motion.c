@@ -2,6 +2,7 @@
 
 EFI_GRAPHICS_OUTPUT_PROTOCOL *Gop;
 EFI_GRAPHICS_OUTPUT_BLT_PIXEL Grey = {166, 166, 166, 0};
+UINT8 Step = 1;
 
 EFI_STATUS VideoInit(
     IN EFI_HANDLE ImageHandle,
@@ -53,9 +54,7 @@ EFI_STATUS DrawLogo(
     return Status;
 }
 
-EFI_STATUS DrawStep(
-    IN UINTN Step
-)
+EFI_STATUS DrawStep()
 {
     EFI_STATUS Status = EFI_SUCCESS;
 
@@ -76,6 +75,6 @@ EFI_STATUS DrawStep(
     }
     Print(L"SUCCESS:DrawStep:%d.\n", Step);
     #endif
-
+    Step++;
     return Status;
 }

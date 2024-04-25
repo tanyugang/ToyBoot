@@ -14,7 +14,7 @@ EFI_STATUS GetElfEntry(
     {
         LogError(Status, "Cannot get Elf file handle.");
     }
-    LogTip("Kernel file handle is getted.\n");
+    LogWrite("Kernel file handle is getted.\n");
     #endif
 
     EFI_PHYSICAL_ADDRESS KernelBuffer;
@@ -26,7 +26,7 @@ EFI_STATUS GetElfEntry(
         LogError(Status, "Cannot read Elf file.");
     }else
     {
-        LogTip("Kernel is readed.\n");
+        LogWrite("Kernel is readed.\n");
     }  
     #endif
 
@@ -58,7 +58,7 @@ EFI_STATUS CheckELF(
     if (Format == ELF_64)
     {
         #ifdef LOG
-        LogTip("SUCCESS:Elf file is 64-bit.\n");
+        LogWrite("SUCCESS:Elf file is 64-bit.\n");
         #endif
     }
     else
@@ -145,7 +145,7 @@ EFI_STATUS LoadSegments(
         LogError(Status, "Cannot LoadeSegment");
     }else
     {
-        LogTip("SUCCESS:Segs are loaded.\n");
+        LogWrite("SUCCESS:Segs are loaded.\n");
     }      
     #endif
     return Status;
@@ -274,7 +274,7 @@ EFI_STATUS LoadSegment(
     }else
     {
         #ifdef LOG
-        LogTip("SUCCESS:Memory for Segment is ready.\n");
+        LogWrite("SUCCESS:Memory for Segment is ready.\n");
         #endif
     }
     Print(L"Dest=%llx, Source=%llx, Size=%d.\n",

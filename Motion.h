@@ -12,6 +12,4 @@ EFI_STATUS DrawLogo(
     IN EFI_HANDLE Imagehandle
 );
 
-EFI_STATUS DrawStep(
-    IN UINTN Step
-);
+EFI_STATUS DrawStep();

@@ -11,21 +11,13 @@ UefiMain(
     BOOT_CONFIG BootConfig;  
     // 如果要打印调试信息，则Logo会因为输出调试信息而错位
     // 所以如果要进行调试，那么就不打印Logo和进度条
-    #ifndef DEBUG
-    UINT8 Step = 1;
-    #endif
     // 日志模块：如果Setup.h文件里定义了LOG，则进行初始化
     #ifdef LOG
-    Status = LogInitial(ImageHandle);
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Cannot repare the Log file.");
-    }else
-    {
-        LogTip("Log is good now.\n");
-    }
+    Status = LogOpen(ImageHandle);
+    Status = LogError(EFI_NOT_FOUND, "EFI_NOT_FOUND");
+    //Status = LogClose();
     #endif
-    
+ 
     // 设置视频模式，主要是看是否有合适的分辨率
     VIDEO_CONFIG VideoConfig;
     Status = VideoInit(ImageHandle, &VideoConfig);
@@ -34,12 +26,12 @@ UefiMain(
     {
         LogError(Status, "Cannot set VideoMode correctly.");
     }else {
-        LogTip("Video is good now.\n");
+        LogWrite("Video is good now.\n");
     }
     #endif
     BootConfig.VideoConfig = VideoConfig;
     #ifndef DEBUG
-    DrawStep(Step++);
+    DrawStep();
     Status = DrawLogo(ImageHandle);
     #endif
 
@@ -49,11 +41,11 @@ UefiMain(
         LogError(Status, "Cannot drawLogo");
     }else
     {
-        LogTip("Logo is on the screen.\n");
+        LogWrite("Logo is on the screen.\n");
     }
     #endif
     #ifndef DEBUG
-    DrawStep(Step++);
+    DrawStep();
     #endif
 
     // 获取Kernel.elf的入口点
@@ -65,13 +57,13 @@ UefiMain(
         LogError(Status, "Cannot GetElfEntry");
     }else
     {
-        LogTip("Kernel entry getted.\n");
+        LogWrite("Kernel entry getted.\n");
     }
     #endif
     UINT64 (*KernelEntry)(BOOT_CONFIG *BootConfig);
     KernelEntry = (UINT64 (*)(BOOT_CONFIG *BootConfig))KernelEntryPoint;
     #ifndef DEBUG
-    DrawStep(Step++);
+    DrawStep();
     #endif
     // 获取字体图片
     EFI_FILE_PROTOCOL *Ascii;
