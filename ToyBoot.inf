@@ -22,5 +22,5 @@
     UefiLib
 [Guids]
     gEfiFileInfoGuid
-
+    gEfiAcpiTableGuid
 

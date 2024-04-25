@@ -86,7 +86,9 @@ UefiMain(
     
     BootConfig.AsciiBmp = BmpConfig;
     
-   
+    Status = GetMadt(&BootConfig.MadtAddress);
+    Print(L"Madt Address:0x%x", BootConfig.MadtAddress);
+
     MEMORY_MAP MemoryMap = {4096, NULL, 4096, 0, 0, 0};
 
     Status = gBS->AllocatePool(EfiLoaderData, MemoryMap.BufferSize, &MemoryMap.Buffer);
@@ -131,5 +133,76 @@ UefiMain(
     UINT64 PassBack = KernelEntry(&BootConfig);
     Print(L"PassBack=%d.\n", PassBack);
     //Never return here
+    return Status;
+}
+
+
+EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    VOID *VendorTable;
+    Status = EfiGetSystemConfigurationTable(&gEfiAcpiTableGuid, &VendorTable);
+    if(EFI_ERROR(Status))
+    {
+        Print(L"EfiGetSystemConfigurationTable error.\n");
+        return Status;
+    }
+    
+    RSDP *Rsdp = (RSDP *)VendorTable;
+
+    Print(L"RSDP Signature:");
+    UINTN i = 0;
+    for(i = 0; i < 7; i++)
+    {
+        Print(L"%c", Rsdp->Signature[i]);
+    }
+
+    Print(L"\nXSDT Address: 0x%08x\n", Rsdp->XsdtAddress);
+    XSDT *Xsdt = (XSDT *)Rsdp->XsdtAddress;
+    MADT *Madt;
+    UINTN EntryCount = (Xsdt->Header.Length - sizeof(Xsdt->Header)) / 8;
+    
+    Print(L"EntryCount:%d\n", EntryCount);
+    for(i = 0; i < EntryCount; i++)
+    {
+        SDT_HEADER *Header = (SDT_HEADER *)Xsdt->PointerOthers[i];
+        if(!AsciiStrnCmp(Header->Signature, "APIC", 4))
+        {
+            Print(L"Signature:");
+            UINTN j;
+            for(j = 0; j < 4; j++)
+            {
+                AsciiPrint("%c", Header->Signature[j]);
+            }
+            Madt = (MADT *)Header;
+            //MadtConfig->MadtAddress = (UINT64)Header;
+            Print(L"\n%x %x\n", Header, (UINT64)Header);
+            Print(L"\nLapicAddress:0x%x\n", Madt->LapicAddress);
+        }
+        
+    }
+    
+    UINT32 PageCount = (Madt->Header.Length >> 12) + 1;
+    Print(L"PageCount %d, Madt->Header.Lengh %d\n", PageCount, Madt->Header.Length);
+    EFI_PHYSICAL_ADDRESS MadtBuffer;
+    Status = gBS->AllocatePages(AllocateAnyPages, EfiLoaderData, PageCount, &MadtBuffer);
+    if(EFI_ERROR(Status))
+    {
+        Print(L"AllocatePages error \r.\n", Status);
+        return Status;
+    }
+
+    CopyMem((VOID*)MadtBuffer, (VOID*)Madt, Madt->Header.Length);
+    *MadtAddress = MadtBuffer;
+ 
+    UINT8 *Test = (UINT8 *)MadtBuffer;
+    for(i = 0; i < Madt->Header.Length; i++)
+    {
+        if(i == 44)
+        {
+            Print(L"\n");
+        }
+        AsciiPrint("%c ", Test[i]);
+    }
     return Status;
 }
