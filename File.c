@@ -19,12 +19,19 @@ EFI_STATUS GetFileHandle(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to LocateHanleBuffer of SimpleFileSystemProtocol.\n");
+        Print(L"ERROR: %r. Failed to GetFileHandle/gBS->LocateHanleBuffer() of SimpleFileSystemProtocol.\n", Status);
         return Status;
     }
-    Print(L"SUCCESS:Get %d handles that supported SimpleFileSystemProtocol.\n", HandleCount);
+    Print(L"SUCCESS: GetFileHandle/gBS->LocateHanleBuffer(). Get %d handles that supported SimpleFileSystemProtocol.\n", HandleCount);
     #endif
-
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "GetFileHandle/gBS->LocateHanleBuffer().\n");
+    }else {
+        LogWrite("SUCCESS: GetFileHandle/gBS->LocateHanleBuffer().\n");
+    }
+    #endif
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
     Status = gBS->OpenProtocol(
         HandleBuffer[0],
@@ -37,11 +44,18 @@ EFI_STATUS GetFileHandle(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to open first handle that supported SimpleFileSystemProtocol.\n");
+        Print(L"ERROR: Failed to GetFileHandle/gBS->OpenProtocol() GraphicsOutputProtocol.\n");
         return Status;
     }
-
-    Print(L"SUCCESS:SimpleFileSystemProtocol is opened with first handle.\n");
+    Print(L"SUCCESS: GetFileHandle/gBS->OpenProtocol().\n"); 
+    #endif
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "GetFileHandle/gBS->OpenProtocol() GraphicsOutputProtocol.\n");
+    }else {
+        LogWrite("SUCCESS: GetFileHandle/gBS->OpenProtocol().\n");
+    }
     #endif
     EFI_FILE_PROTOCOL *Root;
     Status = FileSystem->OpenVolume(
@@ -51,11 +65,18 @@ EFI_STATUS GetFileHandle(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to open volume.\n");
+        Print(L"ERROR: %r. Failed to GetFileHandle/FileSystem->OpenVolume().\n", Status);
         return Status;
     }
-
-    Print(L"SUCCESS:Volume is opened.\n");
+    Print(L"SUCCESS: GetFileHandle/FileSystem->OpenVolume().\n");
+    #endif
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to GetFileHandle/FileSystem->OpenVolume().\n");
+    }else {
+        LogWrite("SUCCESS: GetFileHandle/FileSystem->OpenVolume().\n");
+    }
     #endif
     Status = Root->Open(
         Root,
@@ -69,13 +90,21 @@ EFI_STATUS GetFileHandle(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to open file.\n");
+        Print(L"ERROR: %r. Failed to GetFileHandle/Root->Open().\n", Status);
         return Status;
     }
 
-    Print(L"SUCCESS:File is opened.\n");
+    Print(L"SUCCESS: GetFileHandle/Root->Open().\n");
     #endif
 
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to GetFileHandle/Root->Open().\n");
+    }else {
+        LogWrite("SUCCESS: GetFileHandle/Root->Open().\n");
+    }
+    #endif
     return Status;
 } 
  
@@ -97,11 +126,22 @@ EFI_STATUS ReadFile(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to AllocatePool for FileInfo.\n");
+        Print(L"ERROR: %r. Failed to ReadFile/gBS->AllocatePool().\n", Status);
         return Status;
     }
-    Print(L"SUCCESS:Memory for FileInfo is ready.\n");
+
+    Print(L"SUCCESS: ReadFile/gBS->AllocatePool().\n");
     #endif
+
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to ReadFile/gBS->AllocatePool().\n");
+    }else {
+        LogWrite("SUCCESS: ReadFile/gBS->AllocatePool().\n");
+    }
+    #endif
+    return Status;
 
     Status = File->GetInfo(
         File,
@@ -113,11 +153,22 @@ EFI_STATUS ReadFile(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to GetInfo of Bmp.\n");
+        Print(L"ERROR: %r. Failed to ReadFile/File->GetInfo().\n", Status);
         return Status;
     }
-    Print(L"SUCCESS:FileInfo is getted.\n");
+
+    Print(L"SUCCESS: ReadFile/File->GetInfo().\n");
     #endif
+
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to ReadFile/File->GetInfo().\n");
+    }else {
+        LogWrite("SUCCESS: ReadFile/File->GetInfo().\n");
+    }
+    #endif
+    return Status;
     
     UINTN FilePageSize = (FileInfo->FileSize >> 12) + 1;
     
@@ -132,10 +183,20 @@ EFI_STATUS ReadFile(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to AllocatePages for File.\n");
+        Print(L"ERROR: %r. Failed to ReadFile/gBS->AllocatePages().\n", Status);
         return Status;
     }
-    Print(L"SUCCESS:Memory for File is ready.\n");
+
+    Print(L"SUCCESS: ReadFile/gBS->AllocatePages().\n");
+    #endif
+
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to ReadFile/gBS->AllocatePages().\n");
+    }else {
+        LogWrite("SUCCESS: ReadFile/gBS->AllocatePages().\n");
+    }
     #endif
 
     UINTN ReadSize = FileInfo->FileSize;
@@ -147,12 +208,40 @@ EFI_STATUS ReadFile(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to Read File.\n");
+        Print(L"ERROR: %r. Failed to ReadFile/File->Read().\n", Status);
         return Status;
     }
-    Print(L"SUCCESS:File is readed,size=%d.\n", ReadSize);
+
+    Print(L"SUCCESS: ReadFile/File->Read().\n");
     #endif
-    gBS->FreePool(FileInfo);
+
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to ReadFile/File->Read().\n");
+    }else {
+        LogWrite("SUCCESS: ReadFile/File->Read().\n");
+    }
+    #endif
+    Status = gBS->FreePool(FileInfo);
+    #ifdef DEBUG
+    if(EFI_ERROR(Status))
+    {
+        Print(L"ERROR: %r. Failed to ReadFilegBS->FreePool().\n", Status);
+        return Status;
+    }
+
+    Print(L"SUCCESS: ReadFile/gBS->FreePool().\n");
+    #endif
+
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to ReadFile/gBS->FreePool().\n");
+    }else {
+        LogWrite("SUCCESS: ReadFile/gBS->FreePool().\n");
+    }
+    #endif
     *FileBase = FileBufferAddress;
     return Status;
 }

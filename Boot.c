@@ -1,5 +1,6 @@
 #include "Boot.h"
 
+// ToyBoot的入口函数
 EFI_STATUS
 EFIAPI
 UefiMain(
@@ -7,46 +8,29 @@ UefiMain(
     IN EFI_SYSTEM_TABLE *SystemTable
 )
 {
+    // 接收中间函数的返回值
     EFI_STATUS Status = EFI_SUCCESS; 
-    BOOT_CONFIG BootConfig;  
+     
     // 如果要打印调试信息，则Logo会因为输出调试信息而错位
     // 所以如果要进行调试，那么就不打印Logo和进度条
     // 日志模块：如果Setup.h文件里定义了LOG，则进行初始化
     #ifdef LOG
     Status = LogOpen(ImageHandle);
-    Status = LogError(EFI_NOT_FOUND, "EFI_NOT_FOUND");
-    //Status = LogClose();
     #endif
- 
+    
+    // 需要传递给KernelEntry()的参数
+    BOOT_CONFIG BootConfig; 
     // 设置视频模式，主要是看是否有合适的分辨率
     VIDEO_CONFIG VideoConfig;
     Status = VideoInit(ImageHandle, &VideoConfig);
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Cannot set VideoMode correctly.");
-    }else {
-        LogWrite("Video is good now.\n");
-    }
-    #endif
+
     BootConfig.VideoConfig = VideoConfig;
     #ifndef DEBUG
     DrawStep();
     Status = DrawLogo(ImageHandle);
-    #endif
-
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Cannot drawLogo");
-    }else
-    {
-        LogWrite("Logo is on the screen.\n");
-    }
-    #endif
-    #ifndef DEBUG
     DrawStep();
     #endif
+
 
     // 获取Kernel.elf的入口点
     EFI_PHYSICAL_ADDRESS KernelEntryPoint;
@@ -79,16 +63,9 @@ UefiMain(
     BootConfig.AsciiBmp = BmpConfig;
     
     Status = GetMadt(&BootConfig.MadtAddress);
-    Print(L"Madt Address:0x%x", BootConfig.MadtAddress);
+    Print(L"Madt Address:0x%x\n", BootConfig.MadtAddress);
 
-    MEMORY_MAP MemoryMap = {4096, NULL, 4096, 0, 0, 0};
-
-    Status = gBS->AllocatePool(EfiLoaderData, MemoryMap.BufferSize, &MemoryMap.Buffer);
-    
-    if(EFI_ERROR(Status)){
-        Print(L"Failed to allocate memory to get memory map.\n");
-        return Status;
-    }
+    MEMORY_MAP MemoryMap = {1, NULL, 1, 0, 0, 0};
 
     Status = gBS->GetMemoryMap(
                 &MemoryMap.MapSize,
@@ -103,8 +80,14 @@ UefiMain(
         Print(L"MemoryMap Buffer is too small.\n");
         #endif
     }
-    Print(L"MemoryMap Size:%x\n");
-    MemoryMap.MapSize = MemoryMap.MapSize + 4096;
+    Print(L"MemoryMap Size:%d\n", MemoryMap.MapSize);
+    MemoryMap.MapSize = ((MemoryMap.MapSize >> 12) + 1) << 12;
+    Print(L"MemoryMap Size:%d\n", MemoryMap.MapSize);
+    Status = gBS->AllocatePool(EfiLoaderData, MemoryMap.BufferSize, &MemoryMap.Buffer);
+    if(EFI_ERROR(Status)){
+    Print(L"Failed to allocate memory to get memory map.\n");
+    return Status;
+    }
     Status = gBS->GetMemoryMap(
                 &MemoryMap.MapSize,
                 (EFI_MEMORY_DESCRIPTOR*)MemoryMap.Buffer,

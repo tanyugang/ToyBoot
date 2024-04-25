@@ -5,6 +5,7 @@
 #include <Protocol/SimpleFileSystem.h>
 
 #include "Setup.h"
+#include "Log.h"
 
 EFI_STATUS GetFileHandle(
     IN EFI_HANDLE ImageHandle,

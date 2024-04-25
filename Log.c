@@ -91,7 +91,7 @@ EFI_STATUS LogWrite(CHAR8 *Message)
         Print(L"ERROR: %r. Failed to LogWrite/LogFile->Write() LogFile.\n", Status);
         return Status;
     }
-    Print(L"SUCCESS: LogWrite/LogFile->Write(). \n");
+    //Print(L"SUCCESS: LogWrite/LogFile->Write(). \n");
     #endif
     Status = LogFile->Flush(LogFile);
     #ifdef DEBUG
@@ -100,7 +100,7 @@ EFI_STATUS LogWrite(CHAR8 *Message)
         Print(L"ERROR: %r. Failed to LogWrite/LogFile->Flush() LogFile.\n", Status);
         return Status;
     }
-    Print(L"SUCCESS: LogWrite/LogFile->Flush().\n");
+    //Print(L"SUCCESS: LogWrite/LogFile->Flush().\n");
     #endif
     return Status;
 }
@@ -121,7 +121,7 @@ EFI_STATUS LogClose()
 }
 
 
-EFI_STATUS LogError(EFI_STATUS Code,CHAR8 *ErrorSource )
+EFI_STATUS LogError(EFI_STATUS Code, CHAR8 *ErrorSource)
 {
     EFI_STATUS Status = EFI_SUCCESS;
     switch (Code)
@@ -254,6 +254,6 @@ EFI_STATUS LogError(EFI_STATUS Code,CHAR8 *ErrorSource )
             break;
     }
     Status = LogWrite(ErrorSource);
-    Status = LogWrite("\n\0");
+    //Status = LogWrite("\n\0");
     return Status;
 }

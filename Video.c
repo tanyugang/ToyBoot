@@ -18,11 +18,18 @@ EFI_STATUS GetGopHandle(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to LocateHanleBuffer of GraphicsOutputProtocol.\n");
+        Print(L"ERROR: Failed to GetGopHandle/gBS->LocateHanleBuffer() GraphicsOutputProtocol.\n");
         return Status;
     }
-    Print(L"SUCCESS:Get %d handles that supported GraphicsOutputProtocol.\n", HandleCount);
-    
+    Print(L"SUCCESS: GetGopHandle/gBS->LocateHanleBuffer(), %d handle(s) support GraphicsOutputProtocol.\n", HandleCount);
+    #endif
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "GetGopHandle/gBS->LocateHanleBuffer().\n");
+    }else {
+        LogWrite("SUCCESS: GetGopHandle/gBS->LocateHanleBuffer().\n");
+    }
     #endif
     Status = gBS->OpenProtocol(
         HandleBuffer[0],
@@ -36,14 +43,19 @@ EFI_STATUS GetGopHandle(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to open first handle that supported GraphicsOutputProtocol.\n");
+        Print(L"ERROR: Failed to GetGopHandle/gBS->OpenProtocol() GraphicsOutputProtocol.\n");
         return Status;
     }
-
-    Print(L"SUCCESS:GraphicsOutputProtocol is opened with first handle.\n");
-    
+    Print(L"SUCCESS: GetGopHandle/gBS->OpenProtocol().\n"); 
     #endif
-
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "GetGopHandle/gBS->OpenProtocol() GraphicsOutputProtocol.\n");
+    }else {
+        LogWrite("SUCCESS: GetGopHandle/gBS->OpenProtocol().\n");
+    }
+    #endif
     return Status;
 }
 
@@ -70,18 +82,41 @@ EFI_STATUS SetVideoMode(
         }
     }
 
+    #ifdef DEBUG
+    if(EFI_ERROR(Status))
+    {
+        Print(L"ERROR: Failed to SetVideoMode/Gop->QueryMode().\n");
+        return Status;
+    }
+    Print(L"SUCCESS: SetVideoMode/Gop->QueryMode(), the best Mode is Mode:%d.\n", ModeIndex);
+    #endif
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to SetVideoMode/Gop->QueryMode().\n");
+    }else {
+        LogWrite("SUCCESS: SetVideoMode/Gop->QueryMode().\n");
+    }
+    #endif
+
     Status = Gop->SetMode(Gop, ModeIndex);  
 
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to SetMode.\n");
+        Print(L"ERROR: Failed to SetVideoMode/Gop->SetMode().\n");
         return Status;
     }
-    Print(L"SUCCESS:SetMode to Index:%d.\n", ModeIndex);
-    
+    Print(L"SUCCESS: SetVideoMode/Gop->SetMode() to Index:%d.\n", ModeIndex);
     #endif
-    
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to SetVideoMode/Gop->SetMode().\n");
+    }else {
+        LogWrite("SUCCESS: SetVideoMode/Gop->SetMode().\n");
+    }
+    #endif
     return Status;
 }
 
@@ -111,12 +146,20 @@ EFI_STATUS BmpTransform(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to AllocatePages for PixelArea.\n");
+        Print(L"ERROR: Failed to BmpTransform/gBS->AllocatePages().\n");
         return Status;
     }
-    Print(L"SUCCESS:Memory for PixelArea is ready.\n");
+    Print(L"SUCCESS: BmpTransform/gBS->AllocatePages().\n");
     #endif
-
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to BmpTransform/gBS->AllocatePages().\n");
+    }else {
+        LogWrite("SUCCESS: BmpTransform/gBS->AllocatePages().\n");
+    }
+    #endif
+    
     EFI_GRAPHICS_OUTPUT_BLT_PIXEL *PixelFromFile = (EFI_GRAPHICS_OUTPUT_BLT_PIXEL *)(BmpBase 
                                                     + BmpConfig->Offset 
                                                     + BmpConfig->Width * BmpConfig->Height * 4);
@@ -159,10 +202,18 @@ EFI_STATUS DrawBmp(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to Blt Logo.bmp, code=%d.\n", Status);
+        Print(L"ERROR: %r. Failed to DrawBmp/Gop->Blt().\n", Status);
         return Status;
     }
-    Print(L"SUCCESS:You should see the Logo.\n");
+    Print(L"SUCCESS: Failed to DrawBmp/Gop->Blt(), you should see the Logo.\n");
+    #endif
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to DrawBmp/Gop->Blt()).\n");
+    }else {
+        LogWrite("SUCCESS: DrawBmp/Gop->Blt().\n");
+    }
     #endif
     return Status;
 }
