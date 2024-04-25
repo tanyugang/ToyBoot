@@ -23,7 +23,7 @@ UefiMain(
     // 设置视频模式，主要是看是否有合适的分辨率
     VIDEO_CONFIG VideoConfig;
     Status = VideoInit(ImageHandle, &VideoConfig);
-
+    
     BootConfig.VideoConfig = VideoConfig;
     #ifndef DEBUG
     DrawStep();
@@ -31,19 +31,19 @@ UefiMain(
     DrawStep();
     #endif
 
-
     // 获取Kernel.elf的入口点
     EFI_PHYSICAL_ADDRESS KernelEntryPoint;
     Status = GetElfEntry(ImageHandle, L"\\Kernel.elf", &KernelEntryPoint);
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        LogError(Status, "Cannot GetElfEntry");
+        LogError(Status, "Cannot GetElfEntry.\n");
     }else
     {
         LogWrite("Kernel entry getted.\n");
     }
     #endif
+  
     UINT64 (*KernelEntry)(BOOT_CONFIG *BootConfig);
     KernelEntry = (UINT64 (*)(BOOT_CONFIG *BootConfig))KernelEntryPoint;
     #ifndef DEBUG

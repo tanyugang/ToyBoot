@@ -12,7 +12,7 @@ EFI_STATUS GetElfEntry(
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        LogError(Status, "Cannot get Elf file handle.");
+        LogError(Status, "Cannot get Elf file handle.\n");
     }
     LogWrite("Kernel file handle is getted.\n");
     #endif
@@ -23,7 +23,7 @@ EFI_STATUS GetElfEntry(
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        LogError(Status, "Cannot read Elf file.");
+        LogError(Status, "Cannot read Elf file.\n");
     }else
     {
         LogWrite("Kernel is readed.\n");
@@ -50,7 +50,7 @@ EFI_STATUS CheckELF(
     if(Magic != 0x464c457F)
     {
         #ifdef LOG
-        LogError(NOT_ELF, "It is not an Elf file.");
+        LogError(NOT_ELF, "It is not an Elf file.\n");
         #endif
         Status = NOT_ELF;
     }
@@ -64,7 +64,7 @@ EFI_STATUS CheckELF(
     else
     {
         #ifdef LOG
-        LogError(NOT_64_BIT, "It is not a 64 bits Elf file.");
+        LogError(NOT_64_BIT, "It is not a 64 bits Elf file.\n");
         #endif
         Status = NOT_64_BIT;
     }

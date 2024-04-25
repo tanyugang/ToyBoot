@@ -10,7 +10,9 @@ EFI_STATUS VideoInit(
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
-
+    #ifdef LOG
+    Status = LogWrite("Start to VideoInit().\n");
+    #endif
     Status = GetGopHandle(ImageHandle, &Gop);
 
     Status = SetVideoMode(Gop);
@@ -28,8 +30,11 @@ EFI_STATUS DrawLogo(
     IN EFI_HANDLE ImageHandle
 )
 {
-    EFI_STATUS Status = EFI_SUCCESS;
 
+    EFI_STATUS Status = EFI_SUCCESS;
+    #ifdef LOG
+    Status = LogWrite("Start to DrawLogo().\n");
+    #endif
     CHAR16 *FileName = L"\\Logo.BMP"; 
     UINTN Hor = Gop->Mode->Info->HorizontalResolution;
     UINTN Ver = Gop->Mode->Info->VerticalResolution;
@@ -54,7 +59,9 @@ EFI_STATUS DrawLogo(
 EFI_STATUS DrawStep()
 {
     EFI_STATUS Status = EFI_SUCCESS;
-
+    #ifdef LOG
+    Status = LogWrite("Start to DrawStep().\n");
+    #endif
     UINTN BlockWidth = Gop->Mode->Info->HorizontalResolution >> 6;
     UINTN BlockHeight = Gop->Mode->Info->VerticalResolution >> 6;
     UINTN StartX = (Gop->Mode->Info->HorizontalResolution - (BlockWidth + GAP) * 10 - GAP) / 2;

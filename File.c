@@ -141,7 +141,7 @@ EFI_STATUS ReadFile(
         LogWrite("SUCCESS: ReadFile/gBS->AllocatePool().\n");
     }
     #endif
-    return Status;
+    
 
     Status = File->GetInfo(
         File,
@@ -168,7 +168,7 @@ EFI_STATUS ReadFile(
         LogWrite("SUCCESS: ReadFile/File->GetInfo().\n");
     }
     #endif
-    return Status;
+
     
     UINTN FilePageSize = (FileInfo->FileSize >> 12) + 1;
     
@@ -227,7 +227,7 @@ EFI_STATUS ReadFile(
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR: %r. Failed to ReadFilegBS->FreePool().\n", Status);
+        Print(L"ERROR: %r. Failed to ReadFile/gBS->FreePool().\n", Status);
         return Status;
     }
 

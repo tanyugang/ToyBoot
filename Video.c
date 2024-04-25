@@ -6,6 +6,9 @@ EFI_STATUS GetGopHandle(
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
+    #ifdef LOG
+    Status = LogWrite("Start to GetGopHandle().\n");
+    #endif
     UINTN HandleCount = 0;
     EFI_HANDLE *HandleBuffer;
     Status = gBS->LocateHandleBuffer(
@@ -64,7 +67,9 @@ EFI_STATUS SetVideoMode(
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
-
+    #ifdef LOG
+    Status = LogWrite("Start to SetVideoMode().\n");
+    #endif
     EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *ModeInfo;
     UINTN ModeInfoSize = sizeof(EFI_GRAPHICS_OUTPUT_MODE_INFORMATION);
     UINTN H = 0;
