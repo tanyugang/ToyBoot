@@ -1,3 +1,0 @@
-gCommandLineDefines: {'ARCH': 'X64'}
-BuildOptionPcd: []
-Active Platform: /home/tank/CodingMaster/EDK/ToyBoot/ToyBoot.dsc
