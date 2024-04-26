@@ -27,9 +27,7 @@ EFI_STATUS DrawLogo(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: DrawLogo/GetFileHandle().\n");
-    #endif
+
     EFI_PHYSICAL_ADDRESS LogoAddress;
     Status = ReadFile(Logo, &LogoAddress);
 
@@ -40,9 +38,7 @@ EFI_STATUS DrawLogo(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: DrawLogo/ReadFile().\n");
-    #endif
+
     BMP_CONFIG BmpConfig;
     Status = BmpTransform(LogoAddress, &BmpConfig);
 
@@ -53,9 +49,7 @@ EFI_STATUS DrawLogo(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: DrawLogo/BmpTransform().\n");
-    #endif
+
     UINTN X = (Hor - BmpConfig.Width) / 2;
     UINTN Y = (Ver - BmpConfig.Height) / 2;
 
@@ -68,9 +62,7 @@ EFI_STATUS DrawLogo(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: DrawLogo/DrawBmp().\n");
-    #endif
+
     return Status;
 }
 
@@ -90,9 +82,7 @@ EFI_STATUS GetVideoConfig(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: VideoInit/GetGopHandle().\n");
-    #endif
+
     Status = SetVideoMode(Gop);
 
     if(EFI_ERROR(Status))
@@ -102,9 +92,7 @@ EFI_STATUS GetVideoConfig(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: VideoInit/SetVideoMode().\n");
-    #endif
+
     VideoConfig->FrameBufferBase = Gop->Mode->FrameBufferBase;
     VideoConfig->FrameBufferSize = Gop->Mode->FrameBufferSize;
     VideoConfig->HorizontalResolution = Gop->Mode->Info->HorizontalResolution;
@@ -138,9 +126,6 @@ EFI_STATUS GetGopHandle(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetGopHandle/gBS->LocateHanleBuffer(), %d handle(s) support GraphicsOutputProtocol.\n", HandleCount);
-    #endif
 
     Status = gBS->OpenProtocol(
         HandleBuffer[0],
@@ -159,9 +144,6 @@ EFI_STATUS GetGopHandle(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetGopHandle/gBS->OpenProtocol().\n"); 
-    #endif
 
     return Status;
 }
@@ -197,9 +179,6 @@ EFI_STATUS SetVideoMode(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: SetVideoMode/Gop->QueryMode(), the best Mode is Mode:%d.\n", ModeIndex);
-    #endif
 
     Status = Gop->SetMode(Gop, ModeIndex);  
 
@@ -210,9 +189,6 @@ EFI_STATUS SetVideoMode(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: SetVideoMode/Gop->SetMode() to Index:%d.\n", ModeIndex);
-    #endif
 
     return Status;
 }
@@ -248,9 +224,6 @@ EFI_STATUS BmpTransform(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: BmpTransform/gBS->AllocatePages().\n");
-    #endif
     
     EFI_GRAPHICS_OUTPUT_BLT_PIXEL *PixelFromFile = (EFI_GRAPHICS_OUTPUT_BLT_PIXEL *)(BmpBase 
                                                     + BmpConfig->Offset 
@@ -298,9 +271,6 @@ EFI_STATUS DrawBmp(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: Failed to DrawBmp/Gop->Blt(), you should see the Logo.\n");
-    #endif
 
     return Status;
 }
