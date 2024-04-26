@@ -1,6 +1,6 @@
 #include <Uefi.h>
 
-#define DEBUG
+//#define DEBUG
 
 UINTN GetValue(
     IN EFI_PHYSICAL_ADDRESS StartAddress,

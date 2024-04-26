@@ -17,9 +17,7 @@ EFI_STATUS GetElfEntry(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetElfEntry/GetFileHandle().\n");
-    #endif
+
     EFI_PHYSICAL_ADDRESS KernelBuffer;
     Status = ReadFile(Kernel, &KernelBuffer);
 
@@ -29,10 +27,7 @@ EFI_STATUS GetElfEntry(
         Print(L"ERROR: %r. Failed to GetElfEntry/ReadFile().\n", Status);
         #endif
         return Status;
-    }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetElfEntry/ReadFile().\n");
-    #endif    
+    }  
 
     Status = CheckELF(KernelBuffer);
 
@@ -43,9 +38,7 @@ EFI_STATUS GetElfEntry(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetElfEntry/CheckELF().\n");
-    #endif  
+
     Status = LoadSegments(KernelBuffer, KernelEntry);
 
     if(EFI_ERROR(Status))
@@ -55,9 +48,7 @@ EFI_STATUS GetElfEntry(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetElfEntry/LoadSegments().\n");
-    #endif  
+
     return Status;
 }
 
@@ -76,20 +67,10 @@ EFI_STATUS CheckELF(
 
         Status = NOT_ELF_FILE;
         return Status;
-    } else
-    {
-        #ifdef DEBUG
-        Print(L"SUCCESS: It is an ELF file.\n");
-        #endif
     }
+
     UINT8 Format = GetValue(KernelBuffer, 0x04, 1);
-    if (Format == ELF_64)
-    {
-        #ifdef DEBUG
-        Print(L"SUCCESS: Elf file is 64-bit.\n");
-        #endif
-    }
-    else
+    if (Format != ELF_64)
     {
         #ifdef DEBUG
         Print(L"ERROR: It is not a 64 bits Elf file.\n");
@@ -146,9 +127,6 @@ EFI_STATUS LoadSegments(
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: LoadSegments/gBS->AllocatePages().\n");
-    #endif
 
     UINT64 RelocateOffset = KernelRelocateBase - LowAddr;
     UINT64 *ZeroStart = (UINT64 *)KernelRelocateBase;
@@ -243,8 +221,6 @@ EFI_STATUS GetElfInfo(
                     0
                 );
             }
-            
-            //Print(L"Program Header Index:%d\n, relocated at %016llx.\n", );
         }
         
     }

@@ -74,7 +74,7 @@ EFI_STATUS DrawLogo(
     return Status;
 }
 
-EFI_STATUS VideoInit(
+EFI_STATUS GetVideoConfig(
     IN EFI_HANDLE ImageHandle,
     OUT VIDEO_CONFIG *VideoConfig
 )

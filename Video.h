@@ -25,7 +25,7 @@ typedef struct
 } BMP_CONFIG;
 #pragma pack(1)
 
-EFI_STATUS VideoInit(
+EFI_STATUS GetVideoConfig(
     IN EFI_HANDLE ImageHandle,
     OUT VIDEO_CONFIG *VideoConfig
 );

@@ -15,7 +15,7 @@ UefiMain(
     BOOT_CONFIG BootConfig; 
     // 设置视频模式，主要是看是否有合适的分辨率
     //VIDEO_CONFIG VideoConfig;
-    Status = VideoInit(ImageHandle, &BootConfig.VideoConfig);
+    Status = GetVideoConfig(ImageHandle, &BootConfig.VideoConfig);
 
     if(EFI_ERROR(Status))
     {
@@ -67,9 +67,6 @@ EFI_STATUS GetFontBmp(EFI_HANDLE ImageHandle, CHAR16 *FileName, BMP_CONFIG *BmpC
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetFontBmp/GetFileHandle().\n");
-    #endif
 
     EFI_PHYSICAL_ADDRESS AsciiAddress;
     Status = ReadFile(Ascii, &AsciiAddress);
@@ -80,9 +77,6 @@ EFI_STATUS GetFontBmp(EFI_HANDLE ImageHandle, CHAR16 *FileName, BMP_CONFIG *BmpC
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetFontBmp/ReadFile().\n");
-    #endif
 
     Status = BmpTransform(AsciiAddress, BmpConfig);
     if(EFI_ERROR(Status))
@@ -92,9 +86,6 @@ EFI_STATUS GetFontBmp(EFI_HANDLE ImageHandle, CHAR16 *FileName, BMP_CONFIG *BmpC
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetFontBmp/BmpTransform().\n");
-    #endif
 
     return Status;
 }
@@ -112,9 +103,6 @@ EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetMadt/EfiGetSystemConfigurationTable().\n");
-    #endif
 
     UINTN i = 0;
     RSDP *Rsdp = (RSDP *)VendorTable;
@@ -163,26 +151,10 @@ EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetMadt/gBS->AllocatePages().\n");
-    #endif
 
     CopyMem((VOID*)MadtBuffer, (VOID*)Madt, Madt->Header.Length);
     *MadtAddress = MadtBuffer;
  
-    #ifdef DEBUG
-    Print(L"Contents of MADT:\n");
-    UINT8 *Test = (UINT8 *)MadtBuffer;
-    for(i = 0; i < Madt->Header.Length; i++)
-    {
-        if(i == 44)
-        {
-            Print(L"\nContents of MADT Entries below:\n");
-        }
-        AsciiPrint("%x ", Test[i]);
-    }
-    Print(L"\n");
-    #endif
     return Status;
 }
 
@@ -201,16 +173,16 @@ EFI_STATUS JumpToKernel(EFI_HANDLE ImageHandle, BOOT_CONFIG *BootConfig)
     
     if(Status == EFI_BUFFER_TOO_SMALL)
     {
-        #ifdef DEBUG
-        Print(L"MemoryMap Buffer is too small. you need at least %d bytes.\n", MemoryMap.MapSize);
-        #endif
+        Print(L"MemoryMap Size:%d\n", MemoryMap.MapSize);
+        MemoryMap.MapSize = ((MemoryMap.MapSize >> 12) + 1) << 12;
+        Print(L"MemoryMap Size:%d\n", MemoryMap.MapSize);
     }
-    Print(L"MemoryMap Size:%d\n", MemoryMap.MapSize);
-    MemoryMap.MapSize = ((MemoryMap.MapSize >> 12) + 1) << 12;
-    Print(L"MemoryMap Size:%d\n", MemoryMap.MapSize);
+
     Status = gBS->AllocatePool(EfiLoaderData, MemoryMap.MapSize, &MemoryMap.Buffer);
     if(EFI_ERROR(Status)){
+    #ifdef DEBUG
     Print(L"Failed to allocate memory to get memory map.\n");
+    #endif
     return Status;
     }
     Status = gBS->GetMemoryMap(
@@ -226,10 +198,7 @@ EFI_STATUS JumpToKernel(EFI_HANDLE ImageHandle, BOOT_CONFIG *BootConfig)
         #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: GetMemory/gBS->GetMemoryMap.\n");
-    #endif
-
+    
     BootConfig->MemoryMap = MemoryMap;
 
     Print(L"%r\n", Status);
