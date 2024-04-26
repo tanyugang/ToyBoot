@@ -1,4 +1,4 @@
-#include "Log.h"
+#include <Uefi.h>
 
 #pragma pack(1)
 typedef struct MEMORY_MAP

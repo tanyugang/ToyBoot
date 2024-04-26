@@ -1,3 +1,2 @@
 #define DEBUG
-//#define LOG
 

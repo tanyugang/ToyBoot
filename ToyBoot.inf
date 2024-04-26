@@ -10,11 +10,9 @@
     Boot.c
     Elf.c
     File.c
-    Log.c
     Motion.c
     Tools.c
     Video.c
-    Memory.c
 [Packages]
     MdePkg/MdePkg.dec
 

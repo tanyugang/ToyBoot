@@ -2,7 +2,6 @@
 #include "Motion.h"
 #include "Elf.h"
 #include "Memory.h"
-#include "Log.h"
 
 #pragma pack(1)
 typedef struct RSDP

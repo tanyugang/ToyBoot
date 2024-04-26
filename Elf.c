@@ -6,19 +6,10 @@ EFI_STATUS GetElfEntry(
     OUT EFI_PHYSICAL_ADDRESS *KernelEntry)
 {
     EFI_STATUS Status = EFI_SUCCESS;
-    #ifdef LOG
-    Status = LogWrite("Start to GetElfEntry().\n");
-    #endif
+
     EFI_FILE_PROTOCOL *Kernel;
     Status = GetFileHandle(ImageHandle, FileName, &Kernel);
-    
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetElfEntry/GetFileHandle().\n");
-    }
-    LogWrite("SUCCESS: GetElfEntry/GetFileHandle().\n");
-    #endif
+
     if(EFI_ERROR(Status))
     {
         #ifdef DEBUG
@@ -32,16 +23,6 @@ EFI_STATUS GetElfEntry(
     EFI_PHYSICAL_ADDRESS KernelBuffer;
     Status = ReadFile(Kernel, &KernelBuffer);
 
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetElfEntry/ReadFile().\n");
-    }else
-    {
-        LogWrite("SUCCESS: GetElfEntry/ReadFile().\n");
-    }  
-    #endif
-
     if(EFI_ERROR(Status))
     {
         #ifdef DEBUG
@@ -54,16 +35,7 @@ EFI_STATUS GetElfEntry(
     #endif    
 
     Status = CheckELF(KernelBuffer);
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetElfEntry/CheckELF().\n");
-    }else
-    {
-        LogWrite("SUCCESS: GetElfEntry/CheckELF().\n");
-    }  
-    #endif
- 
+
     if(EFI_ERROR(Status))
     {
         #ifdef DEBUG
@@ -75,15 +47,6 @@ EFI_STATUS GetElfEntry(
     Print(L"SUCCESS: GetElfEntry/CheckELF().\n");
     #endif  
     Status = LoadSegments(KernelBuffer, KernelEntry);
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetElfEntry/LoadSegments().\n");
-    }else
-    {
-        LogWrite("SUCCESS: GetElfEntry/LoadSegments().\n");
-    }  
-    #endif
 
     if(EFI_ERROR(Status))
     {
@@ -103,27 +66,20 @@ EFI_STATUS CheckELF(
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
-    #ifdef LOG
-    Status = LogWrite("Start to CheckELF().\n");
-    #endif
+
     UINT32 Magic = GetValue(KernelBuffer, 0x00, 4);
     if(Magic != 0x464c457F)
     {
         #ifdef DEBUG
         Print(L"ERROR: It is not an Elf file.\n");
         #endif
-        #ifdef LOG
-        LogError(NOT_ELF_FILE, "It is not an Elf file.\n");
-        #endif
+
         Status = NOT_ELF_FILE;
         return Status;
     } else
     {
         #ifdef DEBUG
         Print(L"SUCCESS: It is an ELF file.\n");
-        #endif
-        #ifdef LOG
-        LogWrite("SUCCESS: It is an ELF file.\n");
         #endif
     }
     UINT8 Format = GetValue(KernelBuffer, 0x04, 1);
@@ -132,17 +88,11 @@ EFI_STATUS CheckELF(
         #ifdef DEBUG
         Print(L"SUCCESS: Elf file is 64-bit.\n");
         #endif
-        #ifdef LOG
-        LogWrite("SUCCESS: Elf file is 64-bit.\n");
-        #endif
     }
     else
     {
         #ifdef DEBUG
         Print(L"ERROR: It is not a 64 bits Elf file.\n");
-        #endif
-        #ifdef LOG
-        LogError(NOT_64_BIT, "ERROR: It is not a 64 bits Elf file.\n");
         #endif
         Status = NOT_64_BIT;
         return Status;
@@ -158,9 +108,7 @@ EFI_STATUS LoadSegments(
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
-    #ifdef LOG
-    Status = LogWrite("Start to LoadSegments().\n");
-    #endif
+
     ELF_HEADER_64 *ElfHeader = (ELF_HEADER_64 *)KernelBufferBase;
     PROGRAM_HEADER_64 *PHeader = (PROGRAM_HEADER_64 *)(KernelBufferBase + ElfHeader->Phoff);
     
@@ -201,14 +149,7 @@ EFI_STATUS LoadSegments(
     #ifdef DEBUG
     Print(L"SUCCESS: LoadSegments/gBS->AllocatePages().\n");
     #endif
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to LoadSegments/gBS->AllocatePages().\n");
-    }else {
-        LogWrite("SUCCESS: LoadSegments/gBS->AllocatePages().\n");
-    }
-    #endif
+
     UINT64 RelocateOffset = KernelRelocateBase - LowAddr;
     UINT64 *ZeroStart = (UINT64 *)KernelRelocateBase;
     for(UINTN i = 0; i < (PageCount << 9); i++)
@@ -239,7 +180,80 @@ EFI_STATUS LoadSegments(
 }
 
 
+EFI_STATUS GetElfInfo(
+    IN EFI_PHYSICAL_ADDRESS KernelAddress,
+    IN OUT EFI_PHYSICAL_ADDRESS *KernelEntry)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    ELF_HEADER_64 *ElfHeader = (ELF_HEADER_64 *)KernelAddress;
+    PROGRAM_HEADER_64 *PHeader = (PROGRAM_HEADER_64 *)(KernelAddress + ElfHeader->Phoff);
+    
+    EFI_PHYSICAL_ADDRESS LowAddr = 0xFFFFFFFFFFFFFFFF;
+    EFI_PHYSICAL_ADDRESS HighAddr = 0;
 
+    Print(L"KernelBase = %x.\n", KernelAddress);
+    for (UINTN i = 0; i < ElfHeader->PHeadCount; i++)
+    {
+        if (PHeader[i].Type == PT_LOAD)
+        {
+            if (LowAddr > PHeader[i].PAddress)
+            {
+                LowAddr = PHeader[i].PAddress;
+            }
+            if (HighAddr < PHeader[i].PAddress + PHeader[i].SizeInMemory)
+            {
+                HighAddr = PHeader[i].PAddress + PHeader[i].Offset;
+            }
+        }
+        //PHeader++;
+    }
+
+    Print(L"LowAddr:%016llx, HighAddr:%016llx.\n", LowAddr, HighAddr);
+
+    UINTN PageCount = (HighAddr - LowAddr + 4095) / 4096;
+    EFI_PHYSICAL_ADDRESS KernelRelocateBase;
+    Status = gBS->AllocatePages(
+        AllocateAnyPages,
+        EfiLoaderCode,
+        PageCount,
+        &KernelRelocateBase);
+   
+    if(EFI_ERROR(Status))
+    {
+        Print(L"Allocate pages for kernelrelocate error.\n");
+        return Status;
+    }
+    Print(L"KernelRelocateBase = %016llx.\n", KernelRelocateBase);
+    UINTN RelocateOffset = KernelRelocateBase - LowAddr;
+
+    Print(L"RelocateOffset:%016llx.\n", RelocateOffset);
+    for (UINTN i = 0; i < ElfHeader->PHeadCount; i++)
+    {
+        if (PHeader[i].Type == PT_LOAD)
+        {
+            CopyMem(
+                (VOID *)(PHeader[i].PAddress + RelocateOffset), (VOID *)(KernelAddress + PHeader[i].Offset), PHeader[i].SizeInFile
+            );
+            Print(L"Seg %d New Address = %016llx.\n", i, PHeader[i].PAddress + RelocateOffset);
+            if(PHeader[i].SizeInMemory > PHeader[i].SizeInFile)
+            {
+                SetMem(
+                    (VOID *)(KernelRelocateBase + PHeader[i].SizeInFile),
+                    PHeader[i].SizeInMemory - PHeader[i].SizeInFile,
+                    0
+                );
+            }
+            
+            //Print(L"Program Header Index:%d\n, relocated at %016llx.\n", );
+        }
+        
+    }
+    *KernelEntry = ElfHeader->Entry + RelocateOffset;
+    Print(L"Relocated KernleEntry = %016llx.\n", *KernelEntry);
+
+    return Status;
+}
+/*
 EFI_STATUS LoadSegs(
     IN EFI_FILE_PROTOCOL *Kernel,
     OUT EFI_PHYSICAL_ADDRESS *KernelEntry
@@ -316,17 +330,17 @@ EFI_STATUS LoadSegs(
             Kernel->SetPosition(Kernel, PHeaderTable[i].Offset);
             Kernel->Read(Kernel, &SegmentSize, (VOID *)(RelocatedBuffer + PHeaderTable[i].PAddress - LowAddr));
             //Print(L"Read 0x%x bytes to 0x%llx.\n", SegmentSize, RelocatedBuffer + PHeaderTable[i].PAddress - LowAddr);
-            /*UINT8 *BinByte = (UINT8 *)(RelocatedBuffer + PHeaderTable[i].PAddress - LowAddr);
+            UINT8 *BinByte = (UINT8 *)(RelocatedBuffer + PHeaderTable[i].PAddress - LowAddr);
             for(UINTN i = 0; i < 200; i++)
             {
                 Print(L"%x ", BinByte[i]);
-            }*/
+            }
         }
     }
 
     *KernelEntry = EHeader->Entry + RelocatedBuffer - LowAddr;
     return Status;
-}
+}*/
 
 /*
 EFI_STATUS LoadSegment(
@@ -386,77 +400,3 @@ EFI_STATUS LoadSegment(
     return Status;
     
 }*/
-
-EFI_STATUS GetElfInfo(
-    IN EFI_PHYSICAL_ADDRESS KernelAddress,
-    IN OUT EFI_PHYSICAL_ADDRESS *KernelEntry)
-{
-    EFI_STATUS Status = EFI_SUCCESS;
-    ELF_HEADER_64 *ElfHeader = (ELF_HEADER_64 *)KernelAddress;
-    PROGRAM_HEADER_64 *PHeader = (PROGRAM_HEADER_64 *)(KernelAddress + ElfHeader->Phoff);
-    
-    EFI_PHYSICAL_ADDRESS LowAddr = 0xFFFFFFFFFFFFFFFF;
-    EFI_PHYSICAL_ADDRESS HighAddr = 0;
-
-    Print(L"KernelBase = %x.\n", KernelAddress);
-    for (UINTN i = 0; i < ElfHeader->PHeadCount; i++)
-    {
-        if (PHeader[i].Type == PT_LOAD)
-        {
-            if (LowAddr > PHeader[i].PAddress)
-            {
-                LowAddr = PHeader[i].PAddress;
-            }
-            if (HighAddr < PHeader[i].PAddress + PHeader[i].SizeInMemory)
-            {
-                HighAddr = PHeader[i].PAddress + PHeader[i].Offset;
-            }
-        }
-        //PHeader++;
-    }
-
-    Print(L"LowAddr:%016llx, HighAddr:%016llx.\n", LowAddr, HighAddr);
-
-    UINTN PageCount = (HighAddr - LowAddr + 4095) / 4096;
-    EFI_PHYSICAL_ADDRESS KernelRelocateBase;
-    Status = gBS->AllocatePages(
-        AllocateAnyPages,
-        EfiLoaderCode,
-        PageCount,
-        &KernelRelocateBase);
-   
-    if(EFI_ERROR(Status))
-    {
-        Print(L"Allocate pages for kernelrelocate error.\n");
-        return Status;
-    }
-    Print(L"KernelRelocateBase = %016llx.\n", KernelRelocateBase);
-    UINTN RelocateOffset = KernelRelocateBase - LowAddr;
-
-    Print(L"RelocateOffset:%016llx.\n", RelocateOffset);
-    for (UINTN i = 0; i < ElfHeader->PHeadCount; i++)
-    {
-        if (PHeader[i].Type == PT_LOAD)
-        {
-            CopyMem(
-                (VOID *)(PHeader[i].PAddress + RelocateOffset), (VOID *)(KernelAddress + PHeader[i].Offset), PHeader[i].SizeInFile
-            );
-            Print(L"Seg %d New Address = %016llx.\n", i, PHeader[i].PAddress + RelocateOffset);
-            if(PHeader[i].SizeInMemory > PHeader[i].SizeInFile)
-            {
-                SetMem(
-                    (VOID *)(KernelRelocateBase + PHeader[i].SizeInFile),
-                    PHeader[i].SizeInMemory - PHeader[i].SizeInFile,
-                    0
-                );
-            }
-            
-            //Print(L"Program Header Index:%d\n, relocated at %016llx.\n", );
-        }
-        
-    }
-    *KernelEntry = ElfHeader->Entry + RelocateOffset;
-    Print(L"Relocated KernleEntry = %016llx.\n", *KernelEntry);
-
-    return Status;
-}

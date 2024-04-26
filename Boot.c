@@ -54,10 +54,6 @@ UefiMain(
     {
         return Status;
     }
- 
-    #ifdef LOG
-    Status = LogClose();
-    #endif
    
     Status = JumpToKernel(ImageHandle, &BootConfig);
 
@@ -68,9 +64,7 @@ EFI_STATUS GetFontBmp(EFI_HANDLE ImageHandle, CHAR16 *FileName, BMP_CONFIG *BmpC
 {
     // 获取字体图片
     EFI_STATUS Status = EFI_SUCCESS;
-    #ifdef LOG
-    Status = LogWrite("Start to GetFontBmp().\n");
-    #endif
+
     EFI_FILE_PROTOCOL *Ascii;
     Status = GetFileHandle(ImageHandle, FileName, &Ascii);
     if(EFI_ERROR(Status))
@@ -84,14 +78,6 @@ EFI_STATUS GetFontBmp(EFI_HANDLE ImageHandle, CHAR16 *FileName, BMP_CONFIG *BmpC
     Print(L"SUCCESS: GetFontBmp/GetFileHandle().\n");
     #endif
 
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetFontBmp/GetFileHandle().\n");
-    }else {
-        LogWrite("SUCCESS: GetFontBmp/GetFileHandle().\n");
-    }
-    #endif
     EFI_PHYSICAL_ADDRESS AsciiAddress;
     Status = ReadFile(Ascii, &AsciiAddress);
     if(EFI_ERROR(Status))
@@ -105,14 +91,6 @@ EFI_STATUS GetFontBmp(EFI_HANDLE ImageHandle, CHAR16 *FileName, BMP_CONFIG *BmpC
     Print(L"SUCCESS: GetFontBmp/ReadFile().\n");
     #endif
 
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetFontBmp/ReadFile().\n");
-    }else {
-        LogWrite("SUCCESS: GetFontBmp/ReadFile().\n");
-    }
-    #endif
     Status = BmpTransform(AsciiAddress, BmpConfig);
     if(EFI_ERROR(Status))
     {
@@ -125,23 +103,12 @@ EFI_STATUS GetFontBmp(EFI_HANDLE ImageHandle, CHAR16 *FileName, BMP_CONFIG *BmpC
     Print(L"SUCCESS: GetFontBmp/BmpTransform().\n");
     #endif
 
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetFontBmp/BmpTransform().\n");
-    }else {
-        LogWrite("SUCCESS: GetFontBmp/BmpTransform().\n");
-    }
-    #endif
     return Status;
 }
 
 EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
 {
     EFI_STATUS Status = EFI_SUCCESS;
-    #ifdef LOG
-    Status = LogWrite("Start to GetMadt().\n");
-    #endif
 
     VOID *VendorTable;
     Status = EfiGetSystemConfigurationTable(&gEfiAcpiTableGuid, &VendorTable);
@@ -156,14 +123,6 @@ EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
     Print(L"SUCCESS: GetMadt/EfiGetSystemConfigurationTable().\n");
     #endif
 
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetMadt/EfiGetSystemConfigurationTable().\n");
-    }else {
-        LogWrite("SUCCESS: GetMadt/EfiGetSystemConfigurationTable().\n");
-    }
-    #endif
     UINTN i = 0;
     RSDP *Rsdp = (RSDP *)VendorTable;
     #ifdef DEBUG
@@ -215,15 +174,6 @@ EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
     Print(L"SUCCESS: GetMadt/gBS->AllocatePages().\n");
     #endif
 
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetMadt/gBS->AllocatePages().\n");
-    }else {
-        LogWrite("SUCCESS: GetMadt/gBS->AllocatePages().\n");
-    }
-    #endif
-
     CopyMem((VOID*)MadtBuffer, (VOID*)Madt, Madt->Header.Length);
     *MadtAddress = MadtBuffer;
  
@@ -246,9 +196,7 @@ EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
 EFI_STATUS JumpToKernel(EFI_HANDLE ImageHandle, BOOT_CONFIG *BootConfig)
 {
     EFI_STATUS Status = EFI_SUCCESS;
-    #ifdef LOG
-    Status = LogWrite("Start to JumpToKernel().\n");
-    #endif
+
     MEMORY_MAP MemoryMap = {NULL, 1, 0, 0, 0};
 
     Status = gBS->GetMemoryMap(
@@ -289,19 +237,10 @@ EFI_STATUS JumpToKernel(EFI_HANDLE ImageHandle, BOOT_CONFIG *BootConfig)
     Print(L"SUCCESS: GetMemory/gBS->GetMemoryMap.\n");
     #endif
 
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetMemory/gBS->GetMemoryMap.\n");
-    }else {
-        LogWrite("SUCCESS: GetMemory/gBS->GetMemoryMap.\n");
-    }
-    #endif
     BootConfig->MemoryMap = MemoryMap;
-    
-    //Status = gBS->ExitBootServices(ImageHandle, MemoryMap.MapKey);
+
     Print(L"%r\n", Status);
-    //while(1);
+
     if(EFI_ERROR(Status))
     {
         #ifdef DEBUG

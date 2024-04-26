@@ -4,9 +4,7 @@ EFI_STATUS GetMemoryMap(EFI_HANDLE ImageHandle, MEMORY_MAP *MemoryMapOut)
 {
     EFI_STATUS Status = EFI_SUCCESS;
     MEMORY_MAP MemoryMap = {NULL, 1, 0, 0, 0};
-    #ifdef LOG
-    Status = LogWrite("Start to GetMemoryMap().\n");
-    #endif
+ 
     Print(L"Start to GetMemoryMap().\n");
     Status = gBS->GetMemoryMap(
                 &MemoryMap.MapSize,
@@ -46,14 +44,6 @@ EFI_STATUS GetMemoryMap(EFI_HANDLE ImageHandle, MEMORY_MAP *MemoryMapOut)
     Print(L"SUCCESS: GetMemory/gBS->GetMemoryMap.\n");
     #endif
 
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to GetMemory/gBS->GetMemoryMap.\n");
-    }else {
-        LogWrite("SUCCESS: GetMemory/gBS->GetMemoryMap.\n");
-    }
-    #endif
     MemoryMapOut->Buffer = MemoryMap.Buffer;
     MemoryMapOut->MapSize = MemoryMap.MapSize;
     MemoryMapOut->MapKey = MemoryMap.MapKey;
