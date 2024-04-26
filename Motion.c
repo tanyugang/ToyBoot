@@ -145,7 +145,7 @@ EFI_STATUS DrawLogo(
     UINTN Y = (Ver - BmpConfig.Height) / 2;
 
     Status = DrawBmp(Gop, BmpConfig, X, Y);
-       #ifdef LOG
+    #ifdef LOG
     if(EFI_ERROR(Status))
     {
         LogError(Status, "Failed to DrawLogo/DrawBmp().\n");

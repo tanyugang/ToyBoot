@@ -2,6 +2,7 @@
 #include "Motion.h"
 #include "Elf.h"
 #include "Memory.h"
+#include "Log.h"
 
 #pragma pack(1)
 typedef struct RSDP
@@ -89,6 +90,7 @@ typedef struct BOOT_CONFIG
     VIDEO_CONFIG VideoConfig;
     MEMORY_MAP   MemoryMap;
     BMP_CONFIG AsciiBmp;
+    EFI_PHYSICAL_ADDRESS KernelEntryPoint;
     EFI_PHYSICAL_ADDRESS MadtAddress;
 } BOOT_CONFIG; // @Boot.h
 
@@ -105,3 +107,4 @@ typedef struct GDT_SELECTOR
 
 EFI_STATUS GetFontBmp(EFI_HANDLE ImageHandle, CHAR16 *FileName, BMP_CONFIG *BmpConfig);
 EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress);
+EFI_STATUS JumpToKernel(EFI_HANDLE ImageHandle, BOOT_CONFIG *Bootconfig);

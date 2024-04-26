@@ -11,4 +11,4 @@ typedef struct MEMORY_MAP
 } MEMORY_MAP;
 #pragma pack()
 
-EFI_STATUS GetMemoryMap(MEMORY_MAP *MemoryMap);
+EFI_STATUS GetMemoryMap(EFI_HANDLE ImageHandle, MEMORY_MAP *MemoryMapOut);

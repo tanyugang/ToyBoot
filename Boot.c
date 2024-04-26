@@ -21,186 +21,46 @@ UefiMain(
     // 需要传递给KernelEntry()的参数
     BOOT_CONFIG BootConfig; 
     // 设置视频模式，主要是看是否有合适的分辨率
-    VIDEO_CONFIG VideoConfig;
-    Status = VideoInit(ImageHandle, &VideoConfig);
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to Boot/VideoInit().\n");
-    }else {
-        LogWrite("SUCCESS: Boot/VideoInit().\n");
-    }
-    #endif
+    //VIDEO_CONFIG VideoConfig;
+    Status = VideoInit(ImageHandle, &BootConfig.VideoConfig);
 
     if(EFI_ERROR(Status))
     {
-        #ifdef DEBUG
-        Print(L"ERROR: %r. Failed to Boot/VideoInit().\n", Status);
-        #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: Boot/VideoInit().\n");
-    #endif
-    #ifndef DEBUG
-    DrawStep();
-    #endif   
-    BootConfig.VideoConfig = VideoConfig;
+
     #ifndef DEBUG
     Status = DrawLogo(ImageHandle);
-    DrawStep();
     #endif
 
     // 获取Kernel.elf的入口点
-    EFI_PHYSICAL_ADDRESS KernelEntryPoint;
-    Status = GetElfEntry(ImageHandle, L"\\Kernel.elf", &KernelEntryPoint);
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to Boot/GetElfEntry().\n");
-    }else {
-        LogWrite("SUCCESS: Boot/GetElfEntry().\n");
-    }
-    #endif
+    Status = GetElfEntry(ImageHandle, L"\\Kernel.elf", & BootConfig.KernelEntryPoint);
 
     if(EFI_ERROR(Status))
     {
-        #ifdef DEBUG
-        Print(L"ERROR: %r. Failed to Boot/GetElfEntry().\n", Status);
-        #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: Boot/GetElfEntry().\n");
-    #endif
-    #ifndef DEBUG
-    DrawStep();
-    #endif
-    
-    // 
-    BMP_CONFIG BmpConfig;
-    Status = GetFontBmp(ImageHandle, L"\\ASCII.BMP", &BmpConfig);
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to Boot/GetFontBmp().\n");
-    }else {
-        LogWrite("SUCCESS: Boot/GetFontBmp().\n");
-    }
-    #endif
+
+    Status = GetFontBmp(ImageHandle, L"\\ASCII.BMP", &BootConfig.AsciiBmp);
 
     if(EFI_ERROR(Status))
     {
-        #ifdef DEBUG
-        Print(L"ERROR: %r. Failed to Boot/GetFontBmp().\n", Status);
-        #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: Boot/GetFontBmp().\n");
-    #endif
-    BootConfig.AsciiBmp = BmpConfig;
-    #ifndef DEBUG
-    DrawStep();
-    #endif
+
     Status = GetMadt(&BootConfig.MadtAddress);
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to Boot/GetMadt().\n");
-    }else {
-        LogWrite("SUCCESS: Boot/GetMadt().\n");
-    }
-    #endif
 
     if(EFI_ERROR(Status))
     {
-        #ifdef DEBUG
-        Print(L"ERROR: %r. Failed to Boot/GetMadt().\n", Status);
-        #endif
         return Status;
     }
-    #ifdef DEBUG
-    Print(L"SUCCESS: Boot/GetMadt().\n");
-    #endif
-    #ifndef DEBUG
-    DrawStep();
-    #endif
-    MEMORY_MAP MemoryMap;
-    Status = GetMemoryMap(&MemoryMap);
+ 
     #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to Boot/GetMemoryMap().\n");
-    }else {
-        LogWrite("SUCCESS: Boot/GetMemoryMap().\n");
-    }
-    #endif
-
-    if(EFI_ERROR(Status))
-    {
-        #ifdef DEBUG
-        Print(L"ERROR: %r. Failed to Boot/GetMemoryMap().\n", Status);
-        #endif
-        return Status;
-    }
-    #ifdef DEBUG
-    Print(L"SUCCESS: Boot/GetMemoryMap().\n");
-    #endif
-    BootConfig.MemoryMap = MemoryMap;
-    #ifndef DEBUG
-    DrawStep();
-    #endif
-
     Status = LogClose();
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to Boot/LogClose().\n");
-    }else {
-        LogWrite("SUCCESS: Boot/LogClose().\n");
-    }
     #endif
+   
+    Status = JumpToKernel(ImageHandle, &BootConfig);
 
-    if(EFI_ERROR(Status))
-    {
-        #ifdef DEBUG
-        Print(L"ERROR: %r. Failed to Boot/LogClose().\n", Status);
-        #endif
-        return Status;
-    }
-    #ifdef DEBUG
-    Print(L"SUCCESS: Boot/LogClose().\n");
-    #endif
-    #ifndef DEBUG
-    DrawStep();
-    #endif
-    Status = gBS->ExitBootServices(ImageHandle, BootConfig.MemoryMap.MapKey);
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Failed to Boot/gBS->ExitBootService().\n");
-    }else {
-        LogWrite("SUCCESS: Boot/gBS->ExitBootService().\n");
-    }
-    #endif
-
-    if(EFI_ERROR(Status))
-    {
-        #ifdef DEBUG
-        Print(L"ERROR: %r. Failed to Boot/gBS->ExitBootService().\n", Status);
-        #endif
-        return Status;
-    }
-    #ifdef DEBUG
-    Print(L"SUCCESS: Boot/gBS->ExitBootService().\n");
-    #endif
-    //Status = ByeBootServices(ImageHandle, &BootConfig.MemoryMap);
-    UINT64 (*KernelEntry)(BOOT_CONFIG *BootConfig);
-    KernelEntry = (UINT64 (*)(BOOT_CONFIG *BootConfig))KernelEntryPoint;
-    UINT64 PassBack = KernelEntry(&BootConfig);
-    Print(L"Cannot jump to KernelEntry. PassBack=%d.\n", PassBack);
-    //Never return here
     return Status;
 }
 
@@ -282,6 +142,7 @@ EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
     #ifdef LOG
     Status = LogWrite("Start to GetMadt().\n");
     #endif
+
     VOID *VendorTable;
     Status = EfiGetSystemConfigurationTable(&gEfiAcpiTableGuid, &VendorTable);
     if(EFI_ERROR(Status))
@@ -303,11 +164,11 @@ EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
         LogWrite("SUCCESS: GetMadt/EfiGetSystemConfigurationTable().\n");
     }
     #endif
-    
+    UINTN i = 0;
     RSDP *Rsdp = (RSDP *)VendorTable;
     #ifdef DEBUG
     Print(L"RSDP Signature:");
-    UINTN i = 0;
+    
     for(i = 0; i < 7; i++)
     {
         Print(L"%c", Rsdp->Signature[i]);
@@ -319,7 +180,7 @@ EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
     MADT *Madt;
     UINTN EntryCount = (Xsdt->Header.Length - sizeof(Xsdt->Header)) / 8;
     
-    Print(L"EntryCount:%d\n", EntryCount);
+    //Print(L"EntryCount:%d\n", EntryCount);
     for(i = 0; i < EntryCount; i++)
     {
         SDT_HEADER *Header = (SDT_HEADER *)Xsdt->PointerOthers[i];
@@ -340,7 +201,7 @@ EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
     }
     
     UINT32 PageCount = (Madt->Header.Length >> 12) + 1;
-    Print(L"PageCount %d, Madt->Header.Lengh %d\n", PageCount, Madt->Header.Length);
+    //Print(L"PageCount %d, Madt->Header.Lengh %d\n", PageCount, Madt->Header.Length);
     EFI_PHYSICAL_ADDRESS MadtBuffer;
     Status = gBS->AllocatePages(AllocateAnyPages, EfiLoaderData, PageCount, &MadtBuffer);
     if(EFI_ERROR(Status))
@@ -377,6 +238,81 @@ EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress)
         }
         AsciiPrint("%x ", Test[i]);
     }
+    Print(L"\n");
     #endif
+    return Status;
+}
+
+EFI_STATUS JumpToKernel(EFI_HANDLE ImageHandle, BOOT_CONFIG *BootConfig)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    #ifdef LOG
+    Status = LogWrite("Start to JumpToKernel().\n");
+    #endif
+    MEMORY_MAP MemoryMap = {NULL, 1, 0, 0, 0};
+
+    Status = gBS->GetMemoryMap(
+                &MemoryMap.MapSize,
+                (EFI_MEMORY_DESCRIPTOR*)MemoryMap.Buffer,
+                &MemoryMap.MapKey,
+                &MemoryMap.DescriptorSize,
+                &MemoryMap.DescriptorVersion);
+    
+    if(Status == EFI_BUFFER_TOO_SMALL)
+    {
+        #ifdef DEBUG
+        Print(L"MemoryMap Buffer is too small. you need at least %d bytes.\n", MemoryMap.MapSize);
+        #endif
+    }
+    Print(L"MemoryMap Size:%d\n", MemoryMap.MapSize);
+    MemoryMap.MapSize = ((MemoryMap.MapSize >> 12) + 1) << 12;
+    Print(L"MemoryMap Size:%d\n", MemoryMap.MapSize);
+    Status = gBS->AllocatePool(EfiLoaderData, MemoryMap.MapSize, &MemoryMap.Buffer);
+    if(EFI_ERROR(Status)){
+    Print(L"Failed to allocate memory to get memory map.\n");
+    return Status;
+    }
+    Status = gBS->GetMemoryMap(
+                &MemoryMap.MapSize,
+                (EFI_MEMORY_DESCRIPTOR*)MemoryMap.Buffer,
+                &MemoryMap.MapKey,
+                &MemoryMap.DescriptorSize,
+                &MemoryMap.DescriptorVersion);
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to GetMemory/gBS->GetMemoryMap.\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: GetMemory/gBS->GetMemoryMap.\n");
+    #endif
+
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to GetMemory/gBS->GetMemoryMap.\n");
+    }else {
+        LogWrite("SUCCESS: GetMemory/gBS->GetMemoryMap.\n");
+    }
+    #endif
+    BootConfig->MemoryMap = MemoryMap;
+    
+    //Status = gBS->ExitBootServices(ImageHandle, MemoryMap.MapKey);
+    Print(L"%r\n", Status);
+    //while(1);
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to Boot/gBS->ExitBootService().\n", Status);
+        #endif
+        return Status;
+    }
+    UINT64 (*KernelEntry)(BOOT_CONFIG *BootConfig);
+    KernelEntry = (UINT64 (*)(BOOT_CONFIG *BootConfig))BootConfig->KernelEntryPoint;
+    UINT64 PassBack = KernelEntry(BootConfig);
+    Print(L"Cannot jump to KernelEntry. PassBack=%d.\n", PassBack);
+    //Never return here
     return Status;
 }
