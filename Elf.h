@@ -7,7 +7,7 @@
 
 #define ELF_32 1
 #define ELF_64 2
-#define NOT_ELF -1
+#define NOT_ELF_FILE -1
 #define NOT_64_BIT -2
 #define PT_LOAD 1
 

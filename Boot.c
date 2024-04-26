@@ -34,15 +34,6 @@ UefiMain(
     // 获取Kernel.elf的入口点
     EFI_PHYSICAL_ADDRESS KernelEntryPoint;
     Status = GetElfEntry(ImageHandle, L"\\Kernel.elf", &KernelEntryPoint);
-    #ifdef LOG
-    if(EFI_ERROR(Status))
-    {
-        LogError(Status, "Cannot GetElfEntry.\n");
-    }else
-    {
-        LogWrite("Kernel entry getted.\n");
-    }
-    #endif
   
     UINT64 (*KernelEntry)(BOOT_CONFIG *BootConfig);
     KernelEntry = (UINT64 (*)(BOOT_CONFIG *BootConfig))KernelEntryPoint;

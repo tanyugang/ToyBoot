@@ -7,6 +7,9 @@ EFI_STATUS GetFileHandle(
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
+    #ifdef LOG
+    Status = LogWrite("Start to GetFileHandle().\n");
+    #endif
     UINTN HandleCount = 0;
     EFI_HANDLE *HandleBuffer;
     Status = gBS->LocateHandleBuffer(
@@ -105,6 +108,7 @@ EFI_STATUS GetFileHandle(
         LogWrite("SUCCESS: GetFileHandle/Root->Open().\n");
     }
     #endif
+    
     return Status;
 } 
  
@@ -114,6 +118,9 @@ EFI_STATUS ReadFile(
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
+    #ifdef LOG
+    Status = LogWrite("Start to ReadFile().\n");
+    #endif
     EFI_FILE_INFO *FileInfo;
 
     UINTN InfoSize = sizeof(EFI_FILE_INFO) + 128;

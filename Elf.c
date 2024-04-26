@@ -6,6 +6,9 @@ EFI_STATUS GetElfEntry(
     OUT EFI_PHYSICAL_ADDRESS *KernelEntry)
 {
     EFI_STATUS Status = EFI_SUCCESS;
+    #ifdef LOG
+    Status = LogWrite("Start to GetElfEntry().\n");
+    #endif
     EFI_FILE_PROTOCOL *Kernel;
     Status = GetFileHandle(ImageHandle, FileName, &Kernel);
 
@@ -14,7 +17,7 @@ EFI_STATUS GetElfEntry(
     {
         LogError(Status, "Cannot get Elf file handle.\n");
     }
-    LogWrite("Kernel file handle is getted.\n");
+    LogWrite("SUCCESS: Kernel file handle is getted.\n");
     #endif
 
     EFI_PHYSICAL_ADDRESS KernelBuffer;
@@ -26,17 +29,31 @@ EFI_STATUS GetElfEntry(
         LogError(Status, "Cannot read Elf file.\n");
     }else
     {
-        LogWrite("Kernel is readed.\n");
+        LogWrite("SUCCESS: Kernel is readed.\n");
     }  
     #endif
 
     Status = CheckELF(KernelBuffer);
+    #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        return Status;
-    }
+        LogError(Status, "Cannot CheckElf() file.\n");
+    }else
+    {
+        LogWrite("SUCCESS: CheckElf() is OK.\n");
+    }  
+    #endif
  
     Status = LoadSegments(KernelBuffer, KernelEntry);
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Cannot LoadSegments().\n");
+    }else
+    {
+        LogWrite("SUCCESS: LoadSegments() is OK.\n");
+    }  
+    #endif
     return Status;
 }
 
@@ -45,28 +62,37 @@ EFI_STATUS CheckELF(
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
-
+    #ifdef LOG
+    Status = LogWrite("Start to CheckELF().\n");
+    #endif
     UINT32 Magic = GetValue(KernelBuffer, 0x00, 4);
     if(Magic != 0x464c457F)
     {
         #ifdef LOG
-        LogError(NOT_ELF, "It is not an Elf file.\n");
+        LogError(NOT_ELF_FILE, "It is not an Elf file.\n");
         #endif
-        Status = NOT_ELF;
+        Status = NOT_ELF_FILE;
+        return Status;
+    } else
+    {
+        #ifdef LOG
+        LogWrite("SUCCESS: It is an ELF file.\n");
+        #endif
     }
     UINT8 Format = GetValue(KernelBuffer, 0x04, 1);
     if (Format == ELF_64)
     {
         #ifdef LOG
-        LogWrite("SUCCESS:Elf file is 64-bit.\n");
+        LogWrite("SUCCESS: Elf file is 64-bit.\n");
         #endif
     }
     else
     {
         #ifdef LOG
-        LogError(NOT_64_BIT, "It is not a 64 bits Elf file.\n");
+        LogError(NOT_64_BIT, "ERROR: It is not a 64 bits Elf file.\n");
         #endif
         Status = NOT_64_BIT;
+        return Status;
     }
     
     return Status;
@@ -79,6 +105,9 @@ EFI_STATUS LoadSegments(
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
+    #ifdef LOG
+    Status = LogWrite("Start to LoadSegments().\n");
+    #endif
     ELF_HEADER_64 *ElfHeader = (ELF_HEADER_64 *)KernelBufferBase;
     PROGRAM_HEADER_64 *PHeader = (PROGRAM_HEADER_64 *)(KernelBufferBase + ElfHeader->Phoff);
     
@@ -108,11 +137,22 @@ EFI_STATUS LoadSegments(
         PageCount,
         &KernelRelocateBase);
    
+    #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"Allocate pages for kernelrelocatebuffer error.\n");
+        Print(L"ERROR: Failed to LoadSegments/gBS->AllocatePages.\n");
         return Status;
     }
+    Print(L"SUCCESS: LoadSegments/gBS->AllocatePages.\n");
+    #endif
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to LoadSegments/gBS->AllocatePages.\n");
+    }else {
+        LogWrite("SUCCESS: LoadSegments/gBS->AllocatePages.\n");
+    }
+    #endif
     UINT64 RelocateOffset = KernelRelocateBase - LowAddr;
     UINT64 *ZeroStart = (UINT64 *)KernelRelocateBase;
     for(UINTN i = 0; i < (PageCount << 9); i++)
@@ -142,10 +182,10 @@ EFI_STATUS LoadSegments(
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        LogError(Status, "Cannot LoadeSegment");
+        LogError(Status, "Failed to LoadeSegments().\n");
     }else
     {
-        LogWrite("SUCCESS:Segs are loaded.\n");
+        LogWrite("SUCCESS: LoadeSegments().\n");
     }      
     #endif
     return Status;
