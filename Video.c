@@ -1,5 +1,119 @@
 #include "Video.h"
 
+
+EFI_GRAPHICS_OUTPUT_PROTOCOL *Gop;
+EFI_GRAPHICS_OUTPUT_BLT_PIXEL Grey = {166, 166, 166, 0};
+UINT8 Step = 1;
+
+
+EFI_STATUS DrawLogo(
+    IN EFI_HANDLE ImageHandle
+)
+{
+
+    EFI_STATUS Status = EFI_SUCCESS;
+
+    CHAR16 *FileName = L"\\Logo.BMP"; 
+    UINTN Hor = Gop->Mode->Info->HorizontalResolution;
+    UINTN Ver = Gop->Mode->Info->VerticalResolution;
+
+    EFI_FILE_PROTOCOL *Logo;
+    Status = GetFileHandle(ImageHandle, FileName, &Logo);
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to DrawLogo/GetFileHandle().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: DrawLogo/GetFileHandle().\n");
+    #endif
+    EFI_PHYSICAL_ADDRESS LogoAddress;
+    Status = ReadFile(Logo, &LogoAddress);
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to DrawLogo/ReadFile().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: DrawLogo/ReadFile().\n");
+    #endif
+    BMP_CONFIG BmpConfig;
+    Status = BmpTransform(LogoAddress, &BmpConfig);
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to DrawLogo/BmpTransform().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: DrawLogo/BmpTransform().\n");
+    #endif
+    UINTN X = (Hor - BmpConfig.Width) / 2;
+    UINTN Y = (Ver - BmpConfig.Height) / 2;
+
+    Status = DrawBmp(Gop, BmpConfig, X, Y);
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to DrawLogo/DrawBmp().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: DrawLogo/DrawBmp().\n");
+    #endif
+    return Status;
+}
+
+EFI_STATUS VideoInit(
+    IN EFI_HANDLE ImageHandle,
+    OUT VIDEO_CONFIG *VideoConfig
+)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+
+    Status = GetGopHandle(ImageHandle, &Gop);
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to VideoInit/GetGopHandle().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: VideoInit/GetGopHandle().\n");
+    #endif
+    Status = SetVideoMode(Gop);
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to VideoInit/SetVideoMode().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: VideoInit/SetVideoMode().\n");
+    #endif
+    VideoConfig->FrameBufferBase = Gop->Mode->FrameBufferBase;
+    VideoConfig->FrameBufferSize = Gop->Mode->FrameBufferSize;
+    VideoConfig->HorizontalResolution = Gop->Mode->Info->HorizontalResolution;
+    VideoConfig->VerticalResolution = Gop->Mode->Info->VerticalResolution;
+    VideoConfig->PixelsPerScanLine = Gop->Mode->Info->PixelsPerScanLine;
+    
+    return Status;
+}
+
 EFI_STATUS GetGopHandle(
     IN EFI_HANDLE ImageHandle,
     OUT EFI_GRAPHICS_OUTPUT_PROTOCOL **Gop

@@ -24,6 +24,12 @@ typedef struct
     UINT64 BitsPerPx;
 } BMP_CONFIG;
 #pragma pack(1)
+
+EFI_STATUS VideoInit(
+    IN EFI_HANDLE ImageHandle,
+    OUT VIDEO_CONFIG *VideoConfig
+);
+
 EFI_STATUS GetGopHandle(
     IN EFI_HANDLE ImageHandle,
     EFI_GRAPHICS_OUTPUT_PROTOCOL **Gop
@@ -36,6 +42,10 @@ EFI_STATUS SetVideoMode(
 EFI_STATUS BmpTransform(
     IN EFI_PHYSICAL_ADDRESS BmpBase,
     OUT BMP_CONFIG *BmpConfig
+);
+
+EFI_STATUS DrawLogo(
+    IN EFI_HANDLE ImageHandle
 );
 
 EFI_STATUS DrawBmp(

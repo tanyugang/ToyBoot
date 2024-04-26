@@ -10,7 +10,6 @@
     Boot.c
     Elf.c
     File.c
-    Motion.c
     Tools.c
     Video.c
 [Packages]
