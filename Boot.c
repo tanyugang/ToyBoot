@@ -191,18 +191,9 @@ EFI_STATUS JumpToKernel(EFI_HANDLE ImageHandle, BOOT_CONFIG *BootConfig)
                 &MemoryMap.MapKey,
                 &MemoryMap.DescriptorSize,
                 &MemoryMap.DescriptorVersion);
-    if(EFI_ERROR(Status))
-    {
-        #ifdef DEBUG
-        Print(L"ERROR: %r. Failed to GetMemory/gBS->GetMemoryMap.\n", Status);
-        #endif
-        return Status;
-    }
-    
-    BootConfig->MemoryMap = MemoryMap;
 
-    Print(L"%r\n", Status);
 
+    Status = gBS->ExitBootServices(ImageHandle, MemoryMap.MapKey);
     if(EFI_ERROR(Status))
     {
         #ifdef DEBUG
@@ -210,6 +201,7 @@ EFI_STATUS JumpToKernel(EFI_HANDLE ImageHandle, BOOT_CONFIG *BootConfig)
         #endif
         return Status;
     }
+    BootConfig->MemoryMap = MemoryMap;
     UINT64 (*KernelEntry)(BOOT_CONFIG *BootConfig);
     KernelEntry = (UINT64 (*)(BOOT_CONFIG *BootConfig))BootConfig->KernelEntryPoint;
     UINT64 PassBack = KernelEntry(BootConfig);
