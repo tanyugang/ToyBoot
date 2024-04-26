@@ -14,6 +14,7 @@
     Motion.c
     Tools.c
     Video.c
+    Memory.c
 [Packages]
     MdePkg/MdePkg.dec
 

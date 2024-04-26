@@ -1,18 +1,9 @@
 #include  <Guid/Acpi.h>
 #include "Motion.h"
 #include "Elf.h"
+#include "Memory.h"
 
 #pragma pack(1)
-typedef struct MEMORY_MAP
-{
-    UINTN BufferSize;
-    VOID *Buffer;
-    UINTN MapSize;
-    UINTN MapKey;
-    UINTN DescriptorSize;
-    UINT32 DescriptorVersion;
-} MEMORY_MAP;
-
 typedef struct RSDP
 {
     CHAR8 Signature[8];
@@ -112,4 +103,5 @@ typedef struct GDT_SELECTOR
 } GDT_SELECTOR;
 #pragma pack()
 
+EFI_STATUS GetFontBmp(EFI_HANDLE ImageHandle, CHAR16 *FileName, BMP_CONFIG *BmpConfig);
 EFI_STATUS GetMadt(EFI_PHYSICAL_ADDRESS *MadtAddress);

@@ -16,12 +16,15 @@ EFI_STATUS LogOpen(EFI_HANDLE ImageHandle)
         &HandleCount,
         &Buffer
     );
-    #ifdef DEBUG
+    
     if(EFI_ERROR(Status))
     {
+        #ifdef DEBUG
         Print(L"ERROR: %r. Failed to LogOpen/gBS->LocateHanleBuffer() of SimpleFileSystemProtocol.\n", Status);
+        #endif
         return Status;
     }
+    #ifdef DEBUG
     Print(L"SUCCESS: LogOpen/gBS->LocateHanleBuffer(). Get %d handles that supported SimpleFileSystemProtocol.\n", HandleCount);
     #endif
     
@@ -33,12 +36,15 @@ EFI_STATUS LogOpen(EFI_HANDLE ImageHandle)
         NULL,
         EFI_OPEN_PROTOCOL_GET_PROTOCOL
     );
-    #ifdef DEBUG
+    
     if(EFI_ERROR(Status))
     {
+        #ifdef DEBUG
         Print(L"ERROR: %r. Failed to LogOpen/gBS->OpenProtocol() SimpleFileSystemProtocol.\n", Status);
+        #endif
         return Status;
     }
+    #ifdef DEBUG
     Print(L"SUCCESS: LogOpen/gBS->OpenProtocol().\n");
     #endif
     EFI_FILE_PROTOCOL *File = NULL;
@@ -46,13 +52,15 @@ EFI_STATUS LogOpen(EFI_HANDLE ImageHandle)
         FileSystem,
         &File
     );
-    #ifdef DEBUG
+    
     if(EFI_ERROR(Status))
     {
+        #ifdef DEBUG
         Print(L"ERROR: %r. Failed to LogOpen/FileSystem->OpenVolume().\n", Status);
+        #endif
         return Status;
     }
-
+    #ifdef DEBUG
     Print(L"SUCCESS: LogOpen/FileSystem->OpenVolume().\n");
     #endif
 
@@ -64,13 +72,14 @@ EFI_STATUS LogOpen(EFI_HANDLE ImageHandle)
         EFI_FILE_ARCHIVE
     );
 
-    #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
+        #ifdef DEBUG
         Print(L"ERROR: %r. Failed to LogOpen/File->Open() Log.txt\n", Status);
+        #endif
         return Status;
     }
-
+    #ifdef DEBUG
     Print(L"SUCCESS: LogOpen/File->Open().\n");
     #endif
     
@@ -85,23 +94,27 @@ EFI_STATUS LogWrite(CHAR8 *Message)
     UINTN MsgLen = AsciiStrLen(Message);
     Status = LogFile->Write(LogFile, &MsgLen, Message);
 
-    #ifdef DEBUG
+    
     if(EFI_ERROR(Status))
     {
+        #ifdef DEBUG
         Print(L"ERROR: %r. Failed to LogWrite/LogFile->Write() LogFile.\n", Status);
+        #endif
         return Status;
     }
     //Print(L"SUCCESS: LogWrite/LogFile->Write(). \n");
-    #endif
+   
     Status = LogFile->Flush(LogFile);
-    #ifdef DEBUG
+   
     if(EFI_ERROR(Status))
     {
+        #ifdef DEBUG
         Print(L"ERROR: %r. Failed to LogWrite/LogFile->Flush() LogFile.\n", Status);
+        #endif
         return Status;
     }
     //Print(L"SUCCESS: LogWrite/LogFile->Flush().\n");
-    #endif
+
     return Status;
 }
 
@@ -109,12 +122,15 @@ EFI_STATUS LogClose()
 {
     EFI_STATUS Status = EFI_SUCCESS;
     Status = LogFile->Close(LogFile);
-    #ifdef DEBUG
+    
     if(EFI_ERROR(Status))
     {
+        #ifdef DEBUG
         Print(L"ERROR: %r. Failed to LogClose/LogFile->Close() LogFile.\n", Status);
+        #endif
         return Status;
     }
+    #ifdef DEBUG
     Print(L"SUCCESS: LogClose/LogFile->Close().\n");
     #endif
     return Status;

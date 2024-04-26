@@ -15,8 +15,46 @@ EFI_STATUS VideoInit(
     #endif
     Status = GetGopHandle(ImageHandle, &Gop);
 
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to VideoInit/GetGopHandle().\n");
+    }else {
+        LogWrite("SUCCESS: VideoInit/GetGopHandle().\n");
+    }
+    #endif
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to VideoInit/GetGopHandle().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: VideoInit/GetGopHandle().\n");
+    #endif
     Status = SetVideoMode(Gop);
 
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to VideoInit/SetVideoMode().\n");
+    }else {
+        LogWrite("SUCCESS: VideoInit/SetVideoMode().\n");
+    }
+    #endif
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to VideoInit/SetVideoMode().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: VideoInit/SetVideoMode().\n");
+    #endif
     VideoConfig->FrameBufferBase = Gop->Mode->FrameBufferBase;
     VideoConfig->FrameBufferSize = Gop->Mode->FrameBufferSize;
     VideoConfig->HorizontalResolution = Gop->Mode->Info->HorizontalResolution;
@@ -41,18 +79,91 @@ EFI_STATUS DrawLogo(
 
     EFI_FILE_PROTOCOL *Logo;
     Status = GetFileHandle(ImageHandle, FileName, &Logo);
-    
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to DrawLogo/GetFileHandle().\n");
+    }else {
+        LogWrite("SUCCESS: DrawLogo/GetFileHandle().\n");
+    }
+    #endif
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to DrawLogo/GetFileHandle().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: DrawLogo/GetFileHandle().\n");
+    #endif
     EFI_PHYSICAL_ADDRESS LogoAddress;
     Status = ReadFile(Logo, &LogoAddress);
 
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to DrawLogo/ReadFile().\n");
+    }else {
+        LogWrite("SUCCESS: DrawLogo/ReadFile().\n");
+    }
+    #endif
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to DrawLogo/ReadFile().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: DrawLogo/ReadFile().\n");
+    #endif
     BMP_CONFIG BmpConfig;
     Status = BmpTransform(LogoAddress, &BmpConfig);
+    #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to DrawLogo/BmpTransform().\n");
+    }else {
+        LogWrite("SUCCESS: DrawLogo/BmpTransform().\n");
+    }
+    #endif
 
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to DrawLogo/BmpTransform().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: DrawLogo/BmpTransform().\n");
+    #endif
     UINTN X = (Hor - BmpConfig.Width) / 2;
     UINTN Y = (Ver - BmpConfig.Height) / 2;
 
     Status = DrawBmp(Gop, BmpConfig, X, Y);
-    
+       #ifdef LOG
+    if(EFI_ERROR(Status))
+    {
+        LogError(Status, "Failed to DrawLogo/DrawBmp().\n");
+    }else {
+        LogWrite("SUCCESS: DrawLogo/DrawBmp().\n");
+    }
+    #endif
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to DrawLogo/DrawBmp().\n", Status);
+        #endif
+        return Status;
+    }
+    #ifdef DEBUG
+    Print(L"SUCCESS: DrawLogo/DrawBmp().\n");
+    #endif
     return Status;
 }
 
@@ -71,13 +182,24 @@ EFI_STATUS DrawStep()
 
     Status = Gop->Blt(Gop, &Grey, EfiBltVideoFill, 0, 0, X, StartY, BlockWidth, BlockHeight, 0);
     
-    #ifdef DEBUG
+    #ifdef LOG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to Blt Block.\n");
+        LogError(Status, "Failed to DrawStep().\n");
+    }else {
+        LogWrite("SUCCESS: DrawStep().\n");
+    }
+    #endif
+
+    if(EFI_ERROR(Status))
+    {
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to DrawStep().\n", Status);
+        #endif
         return Status;
     }
-    Print(L"SUCCESS:DrawStep:%d.\n", Step);
+    #ifdef DEBUG
+    Print(L"SUCCESS: DrawStep().\n");
     #endif
     Step++;
     return Status;

@@ -18,12 +18,15 @@ EFI_STATUS GetGopHandle(
         &HandleCount,
         &HandleBuffer
     );
-    #ifdef DEBUG
+    
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR: Failed to GetGopHandle/gBS->LocateHanleBuffer() GraphicsOutputProtocol.\n");
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to GetGopHandle/gBS->LocateHanleBuffer() GraphicsOutputProtocol.\n", Status);
+        #endif
         return Status;
     }
+    #ifdef DEBUG
     Print(L"SUCCESS: GetGopHandle/gBS->LocateHanleBuffer(), %d handle(s) support GraphicsOutputProtocol.\n", HandleCount);
     #endif
     #ifdef LOG
@@ -43,12 +46,15 @@ EFI_STATUS GetGopHandle(
         EFI_OPEN_PROTOCOL_GET_PROTOCOL
     );
     
-    #ifdef DEBUG
+    
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR: Failed to GetGopHandle/gBS->OpenProtocol() GraphicsOutputProtocol.\n");
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to GetGopHandle/gBS->OpenProtocol() GraphicsOutputProtocol.\n", Status);
+        #endif
         return Status;
     }
+    #ifdef DEBUG
     Print(L"SUCCESS: GetGopHandle/gBS->OpenProtocol().\n"); 
     #endif
     #ifdef LOG
@@ -87,12 +93,15 @@ EFI_STATUS SetVideoMode(
         }
     }
 
-    #ifdef DEBUG
+
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR: Failed to SetVideoMode/Gop->QueryMode().\n");
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to SetVideoMode/Gop->QueryMode().\n", Status);
+        #endif
         return Status;
     }
+    #ifdef DEBUG
     Print(L"SUCCESS: SetVideoMode/Gop->QueryMode(), the best Mode is Mode:%d.\n", ModeIndex);
     #endif
     #ifdef LOG
@@ -106,14 +115,17 @@ EFI_STATUS SetVideoMode(
 
     Status = Gop->SetMode(Gop, ModeIndex);  
 
-    #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR: Failed to SetVideoMode/Gop->SetMode().\n");
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to SetVideoMode/Gop->SetMode().\n", Status);
+        #endif
         return Status;
     }
+    #ifdef DEBUG
     Print(L"SUCCESS: SetVideoMode/Gop->SetMode() to Index:%d.\n", ModeIndex);
     #endif
+
     #ifdef LOG
     if(EFI_ERROR(Status))
     {
@@ -132,7 +144,9 @@ EFI_STATUS BmpTransform(
 )    
 {  
     EFI_STATUS Status = EFI_SUCCESS;
-
+    #ifdef LOG
+    Status = LogWrite("Start to BmpTransform().\n");
+    #endif
     BmpConfig->Size = GetValue(BmpBase, 0x02, 4);
     BmpConfig->PageSize = (BmpConfig->Size >> 12) + 1;
     BmpConfig->Offset = GetValue(BmpBase, 0x0A, 4);
@@ -148,12 +162,15 @@ EFI_STATUS BmpTransform(
         &PixelStart
     );
 
-    #ifdef DEBUG
+    
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR: Failed to BmpTransform/gBS->AllocatePages().\n");
+        #ifdef DEBUG
+        Print(L"ERROR: %r. Failed to BmpTransform/gBS->AllocatePages().\n", Status);
+        #endif
         return Status;
     }
+    #ifdef DEBUG
     Print(L"SUCCESS: BmpTransform/gBS->AllocatePages().\n");
     #endif
     #ifdef LOG
@@ -204,12 +221,14 @@ EFI_STATUS DrawBmp(
         BmpConfig.Width,BmpConfig.Height,0
     );
 
-    #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
+        #ifdef DEBUG
         Print(L"ERROR: %r. Failed to DrawBmp/Gop->Blt().\n", Status);
+        #endif
         return Status;
     }
+    #ifdef DEBUG
     Print(L"SUCCESS: Failed to DrawBmp/Gop->Blt(), you should see the Logo.\n");
     #endif
     #ifdef LOG
