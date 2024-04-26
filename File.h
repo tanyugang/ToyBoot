@@ -4,8 +4,7 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Protocol/SimpleFileSystem.h>
 
-#include "Setup.h"
-#include "Log.h"
+#include "Tools.h"
 
 EFI_STATUS GetFileHandle(
     IN EFI_HANDLE ImageHandle,

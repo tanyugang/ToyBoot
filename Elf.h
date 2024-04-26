@@ -2,8 +2,6 @@
 #include  <Library/MemoryAllocationLib.h>
 
 #include "File.h"
-#include "Log.h"
-#include "Tools.h"
 
 #define ELF_32 1
 #define ELF_64 2

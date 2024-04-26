@@ -2,8 +2,6 @@
 #include <Protocol/GraphicsOutput.h>
 
 #include "File.h"
-#include "Tools.h"
-#include "Log.h"
 
 #pragma pack(1)
 typedef struct

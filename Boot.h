@@ -1,7 +1,6 @@
 #include  <Guid/Acpi.h>
 #include "Motion.h"
 #include "Elf.h"
-#include "Memory.h"
 
 #pragma pack(1)
 typedef struct RSDP
@@ -83,6 +82,14 @@ typedef struct NMI
     UINT8 Lint;
 } NMI;
 
+typedef struct
+{
+    VOID *Buffer;
+    UINTN MapSize;
+    UINTN MapKey;
+    UINTN DescriptorSize;
+    UINT32 DescriptorVersion;
+} MEMORY_MAP;
 
 typedef struct BOOT_CONFIG
 {

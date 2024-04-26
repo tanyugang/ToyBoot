@@ -11,13 +11,6 @@ UefiMain(
     // 接收中间函数的返回值
     EFI_STATUS Status = EFI_SUCCESS; 
      
-    // 如果要打印调试信息，则Logo会因为输出调试信息而错位
-    // 所以如果要进行调试，那么就不打印Logo和进度条
-    // 日志模块：如果Setup.h文件里定义了LOG，则进行初始化
-    #ifdef LOG
-    Status = LogOpen(ImageHandle);
-    #endif
-    
     // 需要传递给KernelEntry()的参数
     BOOT_CONFIG BootConfig; 
     // 设置视频模式，主要是看是否有合适的分辨率
