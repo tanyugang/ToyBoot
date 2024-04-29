@@ -47,6 +47,8 @@ UefiMain(
     {
         return Status;
     }
+
+    BootConfig.RunTimeServices = SystemTable->RuntimeServices;
    
     Status = JumpToKernel(ImageHandle, &BootConfig);
 
@@ -201,7 +203,9 @@ EFI_STATUS JumpToKernel(EFI_HANDLE ImageHandle, BOOT_CONFIG *BootConfig)
         #endif
         return Status;
     }
+
     BootConfig->MemoryMap = MemoryMap;
+
     UINT64 (*KernelEntry)(BOOT_CONFIG *BootConfig);
     KernelEntry = (UINT64 (*)(BOOT_CONFIG *BootConfig))BootConfig->KernelEntryPoint;
     UINT64 PassBack = KernelEntry(BootConfig);

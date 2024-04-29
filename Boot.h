@@ -98,17 +98,9 @@ typedef struct BOOT_CONFIG
     BMP_CONFIG AsciiBmp;
     EFI_PHYSICAL_ADDRESS KernelEntryPoint;
     EFI_PHYSICAL_ADDRESS MadtAddress;
+    EFI_RUNTIME_SERVICES *RunTimeServices;
 } BOOT_CONFIG; // @Boot.h
 
-typedef struct GDT_SELECTOR
-{
-    UINT16 LimitLow;
-    UINT16 BaseLow;
-    UINT8  BaseMiddle;
-    UINT8  SysFlag;
-    UINT8  LimitHigh;
-    UINT8  BaseHigh;
-} GDT_SELECTOR;
 #pragma pack()
 
 EFI_STATUS GetFontBmp(EFI_HANDLE ImageHandle, CHAR16 *FileName, BMP_CONFIG *BmpConfig);

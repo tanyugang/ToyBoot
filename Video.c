@@ -163,7 +163,7 @@ EFI_STATUS SetVideoMode(
         Status = Gop->QueryMode(Gop, i, &ModeInfoSize, &ModeInfo);
         H = ModeInfo->HorizontalResolution;
         V = ModeInfo->VerticalResolution;
-        if(((H == 1024) && (V == 768)) || ((H == 1440) && (V == 900)))
+        if(((H == 1366) && (V == 768)) || ((H == 1920) && (V == 1080)))
         {    
             ModeIndex = i;            
         }
