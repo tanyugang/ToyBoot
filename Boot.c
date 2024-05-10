@@ -10,7 +10,7 @@ UefiMain(
 {
     // 接收中间函数的返回值
     EFI_STATUS Status = EFI_SUCCESS; 
-     
+
     // 需要传递给KernelEntry()的参数
     BOOT_CONFIG BootConfig; 
     // 设置视频模式，主要是看是否有合适的分辨率
@@ -47,9 +47,9 @@ UefiMain(
     {
         return Status;
     }
-
-    BootConfig.RunTimeServices = SystemTable->RuntimeServices;
    
+    BootConfig.RunTimeServices = SystemTable->RuntimeServices;
+
     Status = JumpToKernel(ImageHandle, &BootConfig);
 
     return Status;
@@ -203,7 +203,7 @@ EFI_STATUS JumpToKernel(EFI_HANDLE ImageHandle, BOOT_CONFIG *BootConfig)
         #endif
         return Status;
     }
-
+    
     BootConfig->MemoryMap = MemoryMap;
 
     UINT64 (*KernelEntry)(BOOT_CONFIG *BootConfig);
